@@ -1,0 +1,8 @@
+node_modules
+.next
+out
+.firebase
+firebase.json
+.firebaserc
+*.log
+.DS_Store

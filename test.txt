@@ -1,0 +1,11 @@
+firebase deploy
+npm run build
+
+
+firebase deploy --project al-wahiyain
+
+
+ npm start 
+npm run dev
+ firebase login
+ firebase logout

@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# منصة الاختبارات الذكية - موقع الويب
 
-## Getting Started
+موقع ويب ترحيبي لمنصة الاختبارات الذكية، مبني باستخدام Next.js ومتصل بـ Firebase.
 
-First, run the development server:
+## 🌟 المميزات
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **صفحة ترحيبية جميلة** مع تصميم متجاوب
+- **عرض التحديثات الجديدة** من Firebase
+- **زر تحميل التطبيق** للوصول إلى التطبيق المحمول
+- **دعم اللغة العربية** مع الخطوط المناسبة
+- **اتصال مباشر مع Firebase** لعرض البيانات
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 البدء السريع
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### المتطلبات
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js 18+
+- npm أو yarn
+- مشروع Firebase
 
-## Learn More
+### التثبيت
 
-To learn more about Next.js, take a look at the following resources:
+1. **تثبيت التبعيات**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   npm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **تشغيل المشروع**
 
-## Deploy on Vercel
+   ```bash
+   npm run dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **فتح المتصفح**
+   انتقل إلى [http://localhost:3000](http://localhost:3000)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔥 إعداد Firebase
+
+تم إعداد Firebase باستخدام نفس مشروع التطبيق الأساسي:
+
+- **Project ID**: recordepisodes-f7722
+- **Firestore**: لقاعدة البيانات
+- **Storage**: لتخزين الملفات
+
+### إضافة البيانات التجريبية
+
+يمكنك إضافة بيانات تجريبية للتحديثات من خلال الزر الموجود في الصفحة الرئيسية.
+
+## 📱 ربط التطبيق
+
+الموقع متصل مع التطبيق المحمول ويستخدم نفس قاعدة البيانات في Firebase.
+
+## 🎨 التصميم
+
+- **Tailwind CSS** للتصميم
+- **Next.js** للواجهة الأمامية
+- **TypeScript** للأمان والجودة
+- **Noto Sans Arabic** للخطوط العربية
+
+## 📊 البيانات
+
+يتم عرض التحديثات من مجموعة `updates` في Firestore مع التصنيفات التالية:
+
+- **feature**: ميزة جديدة
+- **fix**: إصلاح
+- **improvement**: تحسين
+
+## 🔧 التطوير
+
+### إضافة تحديث جديد
+
+يمكن إضافة تحديثات جديدة من خلال Firebase Console أو من خلال التطبيق.
+
+### تخصيص التصميم
+
+يمكن تخصيص التصميم من خلال تعديل ملفات CSS و Tailwind.
+
+## 📄 الترخيص
+
+هذا المشروع مرخص تحت رخصة MIT.
+
+---
+
+**تم تطوير هذا المشروع بحب ❤️ لخدمة التعليم العربي**
