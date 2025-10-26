@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { firestoreApi } from '@/lib/FirestoreApi';
-import { addAppConfig } from '@/lib/appConfig';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -81,7 +80,15 @@ export default function HomePage() {
     }
   };
 
-  const downloadApp = () => {
+  const downloadApp = async () => {
+    // تسجيل تحميل التطبيق في Firebase
+    try {
+      await recordAppDownload();
+    } catch (error) {
+      console.error('خطأ في تسجيل تحميل التطبيق:', error);
+    }
+
+    // فتح رابط التحميل
     if (downloadUrl) {
       window.open(downloadUrl, '_blank');
     } else {
@@ -90,16 +97,120 @@ export default function HomePage() {
     }
   };
 
-  const addAppConfigData = async () => {
+  // دالة للحصول على أو إنشاء معرف المستخدم من الكوكيز
+  const getUserIdentifier = (): string => {
+    // إذا كان المستخدم مسجل دخول، استخدم uid
+    if (user?.uid) {
+      return user.uid;
+    }
+
+    // محاولة الحصول على visitor_id من الكوكيز
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'visitor_id') {
+        return value;
+      }
+      if (name === 'user_email' && value) {
+        return value;
+      }
+    }
+
+    // إنشاء معرف جديد للزائر
+    const newVisitorId = `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // حفظه في الكوكيز لمدة 365 يوم
+    document.cookie = `visitor_id=${newVisitorId}; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
+    return newVisitorId;
+  };
+
+  // دالة للحصول على الإيميل من الكوكيز إذا كان متوفراً
+  const getUserEmailFromCookies = (): string => {
+    if (user?.email) {
+      return user.email;
+    }
+
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'user_email' && value) {
+        return decodeURIComponent(value);
+      }
+    }
+    return '';
+  };
+
+  const recordAppDownload = async () => {
     try {
-      await addAppConfig();
-      await fetchDownloadUrl();
-      alert('تم إضافة تكوين التطبيق بنجاح!');
+      const now = new Date();
+      const userAgent = navigator.userAgent;
+      const platform = navigator.platform;
+      const language = navigator.language;
+      const screenWidth = window.screen.width;
+      const screenHeight = window.screen.height;
+      const timestamp = now.toISOString();
+      const date = now.toLocaleDateString('ar-SA', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      const time = now.toLocaleTimeString('ar-SA', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit'
+      });
+
+      // الحصول على معرف المستخدم (uid أو visitor_id أو email)
+      const userIdentifier = getUserIdentifier();
+      const userEmailFromCookies = getUserEmailFromCookies();
+
+      // الحصول على معلومات إضافية إذا كانت متاحة
+      const downloadData = {
+        timestamp,
+        date,
+        time,
+        userAgent,
+        platform,
+        language,
+        screenWidth,
+        screenHeight,
+        // معلومات المستخدم
+        userId: user?.uid || 'غير مسجل',
+        userEmail: user?.email || userEmailFromCookies || 'غير مسجل',
+        isLoggedIn: !!user,
+        identifier: userIdentifier,
+        downloadUrl: downloadUrl || 'https://drive.google.com/file/d/1ajb9ziS_VpQPmiUa4SNQHyWFNqMpxKIF/view?usp=sharing',
+        createdAt: timestamp,
+        // معلومات عن المتصفح
+        isOnline: navigator.onLine,
+        cookieEnabled: navigator.cookieEnabled,
+        javaEnabled: navigator.javaEnabled ? navigator.javaEnabled() : false,
+        // معلومات عن التاريخ
+        dayOfWeek: now.toLocaleDateString('ar-SA', { weekday: 'long' }),
+        hour: now.getHours(),
+        minute: now.getMinutes(),
+      };
+
+      // حفظ البيانات في Firebase باستخدام المسار المتداخل
+      // المسار: app_downloads/{userIdentifier}/app_downloads/{downloadId}
+      const docId = await firestoreApi.createSubDocument(
+        'app_downloads',
+        userIdentifier,
+        'app_downloads',
+        downloadData
+      );
+
+      console.log('تم تسجيل تحميل التطبيق بنجاح:', docId);
+      
+      // حفظ الإيميل في الكوكيز للزوار غير المسجلين
+      if (!user && userEmailFromCookies) {
+        document.cookie = `user_email=${encodeURIComponent(userEmailFromCookies)}; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
+      }
     } catch (error) {
-      console.error('خطأ في إضافة تكوين التطبيق:', error);
-      alert('حدث خطأ في إضافة تكوين التطبيق');
+      console.error('حدث خطأ أثناء تسجيل تحميل التطبيق:', error);
     }
   };
+
+ 
 
   const handleSaveDownloadUrl = async () => {
     if (!newDownloadUrl.trim()) {
