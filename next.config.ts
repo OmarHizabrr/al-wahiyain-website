@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  output: 'export', // مفعل لإنشاء ملفات ثابتة للـ Firebase Hosting
+  // output: 'export', // معطل للسماح بالصفحات الديناميكية على Vercel
   trailingSlash: true,
   images: {
     unoptimized: true,
