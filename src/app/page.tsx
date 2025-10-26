@@ -92,24 +92,32 @@ export default function HomePage() {
     try {
       if ('credentials' in navigator && navigator.credentials) {
         console.log('💡 جاري طلب الإذن من المتصفح...');
+        console.log('🔧 Credential Manager متوفر');
         try {
           const credential = await navigator.credentials.get({
             mediation: 'required', // استخدام 'required' لإظهار النافذة دائماً
           });
           
-          if (credential && 'id' in credential) {
+          console.log('📊 نتيجة Credential Manager:', credential);
+          
+          if (credential && typeof credential === 'object' && 'id' in credential) {
             console.log('✅ تم اختيار حساب:', credential.id);
             if (credential.id.includes('@')) {
               userEmail = credential.id;
               console.log('📧 البريد الإلكتروني:', userEmail);
             }
+          } else {
+            console.log('⚠️ لم يتم اختيار حساب أو بيانات غير صالحة');
           }
         } catch (credError) {
-          console.log('⚠️ لم يختر المستخدم حساب:', credError instanceof Error ? credError.message : String(credError));
+          console.log('⚠️ خطأ في Credential Manager:', credError instanceof Error ? credError.message : String(credError));
+          console.log('⚠️ نوع الخطأ:', typeof credError);
         }
+      } else {
+        console.log('⚠️ Credential Manager غير متوفر في هذا المتصفح');
       }
-    } catch {
-      console.log('⚠️ لا يمكن الوصول إلى Credential Manager');
+    } catch (error) {
+      console.log('⚠️ لا يمكن الوصول إلى Credential Manager:', error);
     }
     
     // تسجيل تحميل التطبيق في Firebase مع البيانات
