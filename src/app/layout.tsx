@@ -1,6 +1,6 @@
+import { AuthProvider } from "@/contexts/AuthContext";
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
 
 const organizationSchema = {
   '@context': 'https://schema.org',
