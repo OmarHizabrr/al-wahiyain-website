@@ -1,5 +1,6 @@
 'use client';
 
+import { useMessage } from '@/lib/messageService';
 import { useState } from 'react';
 
 interface PdfSettings {
@@ -19,6 +20,7 @@ const defaultSettings: PdfSettings = {
 };
 
 export default function SettingsPage() {
+  const { showMessage, showConfirm } = useMessage();
   const [settings, setSettings] = useState<PdfSettings>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('pdf_settings');
@@ -41,18 +43,26 @@ export default function SettingsPage() {
       localStorage.setItem('pdf_settings', JSON.stringify(settings));
       setTimeout(() => {
         setIsSaving(false);
-        alert('تم حفظ الإعدادات بنجاح');
+        showMessage('تم حفظ الإعدادات بنجاح', 'success');
       }, 500);
     }
   };
 
   const handleReset = () => {
-    if (confirm('هل تريد استعادة جميع الإعدادات إلى القيم الافتراضية؟')) {
-      setSettings(defaultSettings);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('pdf_settings', JSON.stringify(defaultSettings));
-      }
-    }
+    showConfirm(
+      'هل تريد استعادة جميع الإعدادات إلى القيم الافتراضية؟',
+      () => {
+        setSettings(defaultSettings);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('pdf_settings', JSON.stringify(defaultSettings));
+        }
+        showMessage('تم استعادة الإعدادات بنجاح', 'success');
+      },
+      undefined,
+      'استعادة',
+      'إلغاء',
+      'warning'
+    );
   };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {

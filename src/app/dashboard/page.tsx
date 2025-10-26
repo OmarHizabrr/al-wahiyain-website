@@ -1,6 +1,7 @@
 'use client';
 
 import { firestoreApi } from '@/lib/FirestoreApi';
+import { useMessage } from '@/lib/messageService';
 import { PrintService } from '@/lib/printService';
 import { ReferenceListsService } from '@/lib/referenceListsService';
 import { TestTemplates } from '@/lib/testTemplates';
@@ -101,6 +102,7 @@ interface DashboardStats {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { showMessage } = useMessage();
   const referenceService = ReferenceListsService.instance;
   
   const [stats, setStats] = useState<DashboardStats>({
@@ -306,7 +308,7 @@ export default function DashboardPage() {
       setLastUpdated(new Date());
     } catch (error) {
       console.error('Error loading dashboard stats:', error);
-      alert('حدث خطأ في تحميل الإحصائيات');
+      showMessage('حدث خطأ في تحميل الإحصائيات', 'error');
     } finally {
       setIsLoading(false);
     }

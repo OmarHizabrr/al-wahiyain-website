@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { firestoreApi } from '@/lib/FirestoreApi';
+import { useMessage } from '@/lib/messageService';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -23,6 +24,7 @@ export default function HomePage() {
   const [isSaving, setIsSaving] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
+  const { showMessage } = useMessage();
 
   useEffect(() => {
     fetchUpdates();
@@ -116,7 +118,7 @@ export default function HomePage() {
       console.log('تم إكمال عملية التسجيل');
     } catch (error) {
       console.error('✗ خطأ في تسجيل تحميل التطبيق:', error);
-      alert('حدث خطأ أثناء تسجيل التحميل. يرجى فتح Console للتفاصيل.');
+      showMessage('حدث خطأ أثناء تسجيل التحميل', 'error');
     }
 
     // فتح رابط التحميل
@@ -442,7 +444,7 @@ export default function HomePage() {
       }
     } catch (error) {
       console.error('✗ حدث خطأ أثناء تسجيل تحميل التطبيق:', error);
-      alert('حدث خطأ أثناء تسجيل التحميل، يرجى فتح Console لمعرفة التفاصيل');
+      showMessage('حدث خطأ أثناء تسجيل التحميل', 'error');
     }
   };
 
@@ -450,7 +452,7 @@ export default function HomePage() {
 
   const handleSaveDownloadUrl = async () => {
     if (!newDownloadUrl.trim()) {
-      alert('يرجى إدخال رابط التحميل');
+      showMessage('يرجى إدخال رابط التحميل', 'warning');
       return;
     }
 
@@ -483,10 +485,10 @@ export default function HomePage() {
       setDownloadUrl(newDownloadUrl);
       setShowUploadDialog(false);
       setNewDownloadUrl('');
-      alert('تم حفظ رابط التحميل بنجاح!');
+      showMessage('تم حفظ رابط التحميل بنجاح!', 'success');
     } catch (error) {
       console.error('خطأ في حفظ رابط التحميل:', error);
-      alert('حدث خطأ أثناء حفظ رابط التحميل');
+      showMessage('حدث خطأ أثناء حفظ رابط التحميل', 'error');
     } finally {
       setIsSaving(false);
     }

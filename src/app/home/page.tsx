@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { firestoreApi } from '@/lib/FirestoreApi';
+import { useMessage } from '@/lib/messageService';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -9,6 +10,7 @@ import { useEffect, useState } from 'react';
 export default function HomePage() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
+  const { showMessage, showConfirm } = useMessage();
   const [downloadUrl, setDownloadUrl] = useState<string>('');
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [newDownloadUrl, setNewDownloadUrl] = useState<string>('');
@@ -46,7 +48,7 @@ export default function HomePage() {
 
   const handleSaveDownloadUrl = async () => {
     if (!newDownloadUrl.trim()) {
-      alert('يرجى إدخال رابط التحميل');
+      showMessage('يرجى إدخال رابط التحميل', 'warning');
       return;
     }
 
@@ -79,10 +81,10 @@ export default function HomePage() {
       setDownloadUrl(newDownloadUrl);
       setShowUploadDialog(false);
       setNewDownloadUrl('');
-      alert('تم حفظ رابط التحميل بنجاح!');
+      showMessage('تم حفظ رابط التحميل بنجاح!', 'success');
     } catch (error) {
       console.error('خطأ في حفظ رابط التحميل:', error);
-      alert('حدث خطأ أثناء حفظ رابط التحميل');
+      showMessage('حدث خطأ أثناء حفظ رابط التحميل', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -155,63 +157,73 @@ export default function HomePage() {
 
   // دالة لحذف تحميل معين
   const handleDeleteDownload = async (downloadId: string, userId: string) => {
-    if (!confirm('هل تريد حذف هذا التحميل؟')) {
-      return;
-    }
-
-    try {
-      console.log('حذف التحميل:', downloadId);
-      const docRef = firestoreApi.getSubDocument('app_downloads', userId, 'app_downloads', downloadId);
-      await firestoreApi.deleteData(docRef);
-      console.log('✓ تم حذف التحميل بنجاح');
-      alert('تم حذف التحميل بنجاح');
-      // إعادة تحميل القائمة
-      fetchAppDownloads();
-    } catch (error) {
-      console.error('خطأ في حذف التحميل:', error);
-      alert('حدث خطأ أثناء حذف التحميل');
-    }
+    showConfirm(
+      'هل تريد حذف هذا التحميل؟',
+      async () => {
+        try {
+          console.log('حذف التحميل:', downloadId);
+          const docRef = firestoreApi.getSubDocument('app_downloads', userId, 'app_downloads', downloadId);
+          await firestoreApi.deleteData(docRef);
+          console.log('✓ تم حذف التحميل بنجاح');
+          showMessage('تم حذف التحميل بنجاح', 'success');
+          // إعادة تحميل القائمة
+          fetchAppDownloads();
+        } catch (error) {
+          console.error('خطأ في حذف التحميل:', error);
+          showMessage('حدث خطأ أثناء حذف التحميل', 'error');
+        }
+      },
+      undefined,
+      'حذف',
+      'إلغاء',
+      'danger'
+    );
   };
 
   // دالة لحذف جميع التحميلات
   const handleDeleteAll = async () => {
-    if (!confirm('هل أنت متأكد من حذف جميع التحميلات؟ هذا الإجراء لا يمكن التراجع عنه!')) {
-      return;
-    }
-
-    try {
-      console.log('حذف جميع التحميلات...');
-      setLoadingDownloads(true);
-      
-      // جلب جميع المستخدمين
-      const appDownloadsRef = firestoreApi.getCollection('app_downloads');
-      const users = await firestoreApi.getAllDocuments(appDownloadsRef);
-      
-      // حذف كل تحميل لكل مستخدم
-      for (const userDoc of users) {
-        const userId = userDoc.id;
+    showConfirm(
+      'هل أنت متأكد من حذف جميع التحميلات؟ هذا الإجراء لا يمكن التراجع عنه!',
+      async () => {
         try {
-          const downloadsRef = firestoreApi.getSubCollection('app_downloads', userId, 'app_downloads');
-          const downloads = await firestoreApi.getAllDocuments(downloadsRef);
+          console.log('حذف جميع التحميلات...');
+          setLoadingDownloads(true);
           
-          for (const download of downloads) {
-            const docRef = download.ref;
-            await firestoreApi.deleteData(docRef);
+          // جلب جميع المستخدمين
+          const appDownloadsRef = firestoreApi.getCollection('app_downloads');
+          const users = await firestoreApi.getAllDocuments(appDownloadsRef);
+          
+          // حذف كل تحميل لكل مستخدم
+          for (const userDoc of users) {
+            const userId = userDoc.id;
+            try {
+              const downloadsRef = firestoreApi.getSubCollection('app_downloads', userId, 'app_downloads');
+              const downloads = await firestoreApi.getAllDocuments(downloadsRef);
+              
+              for (const download of downloads) {
+                const docRef = download.ref;
+                await firestoreApi.deleteData(docRef);
+              }
+            } catch (error) {
+              console.error(`خطأ في حذف تحميلات المستخدم ${userId}:`, error);
+            }
           }
-        } catch (error) {
-          console.error(`خطأ في حذف تحميلات المستخدم ${userId}:`, error);
-        }
-      }
 
-      alert('تم حذف جميع التحميلات بنجاح');
-      
-      // إعادة تحميل القائمة
-      fetchAppDownloads();
-    } catch (error) {
-      console.error('خطأ في حذف جميع التحميلات:', error);
-      alert('حدث خطأ أثناء حذف التحميلات');
-      setLoadingDownloads(false);
-    }
+          showMessage('تم حذف جميع التحميلات بنجاح', 'success');
+          
+          // إعادة تحميل القائمة
+          fetchAppDownloads();
+        } catch (error) {
+          console.error('خطأ في حذف جميع التحميلات:', error);
+          showMessage('حدث خطأ أثناء حذف التحميلات', 'error');
+          setLoadingDownloads(false);
+        }
+      },
+      undefined,
+      'حذف الكل',
+      'إلغاء',
+      'danger'
+    );
   };
 
   if (loading) {

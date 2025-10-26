@@ -1,4 +1,5 @@
 import { AuthProvider } from "@/contexts/AuthContext";
+import { MessageProvider } from "@/lib/messageService";
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -74,7 +75,9 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <AuthProvider>
-          {children}
+          <MessageProvider>
+            {children}
+          </MessageProvider>
         </AuthProvider>
       </body>
     </html>
