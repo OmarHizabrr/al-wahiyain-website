@@ -19,3 +19,9 @@ cd website
 git add .
 git commit -m "وصف التغييرات الجديدة"
 git push
+
+
+
+git add .
+git commit -m "Add favicon and logo to metadata pdf"
+git push

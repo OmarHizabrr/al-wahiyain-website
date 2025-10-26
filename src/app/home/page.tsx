@@ -231,7 +231,7 @@ export default function HomePage() {
 
              {/* Reference Lists Management */}
              <div className="mt-8">
-               <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-8 shadow-lg text-center text-white">
+               <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-8 shadow-lg text-center text-white">
                  <div className="text-5xl mb-4">⚙️</div>
                  <h3 className="text-2xl font-bold mb-2">إدارة القوائم المرجعية</h3>
                  <p className="text-purple-100 mb-6">
@@ -280,6 +280,23 @@ export default function HomePage() {
                </div>
              </div>
 
+             {/* Dashboard */}
+             <div className="mt-8">
+               <div className="bg-gradient-to-r from-indigo-500 via-blue-600 to-slate-700 rounded-xl p-8 shadow-lg text-center text-white">
+                 <div className="text-5xl mb-4">📊</div>
+                 <h3 className="text-2xl font-bold mb-2">لوحة التحكم</h3>
+                 <p className="text-blue-100 mb-6">
+                   عرض إحصائيات النظام والبيانات الشاملة
+                 </p>
+                 <button
+                   onClick={() => router.push('/dashboard')}
+                   className="bg-white text-indigo-600 hover:bg-indigo-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                 >
+                   📊 عرض لوحة التحكم
+                 </button>
+               </div>
+             </div>
+
              {/* App Management */}
              <div className="mt-8">
                <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-8 shadow-lg text-center text-white">
@@ -299,6 +316,23 @@ export default function HomePage() {
                    className="bg-white text-green-600 hover:bg-green-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
                  >
                    📱 رفع رابط التطبيق
+                 </button>
+               </div>
+             </div>
+
+             {/* Settings */}
+             <div className="mt-8">
+               <div className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl p-8 shadow-lg text-center text-white">
+                 <div className="text-5xl mb-4">⚙️</div>
+                 <h3 className="text-2xl font-bold mb-2">إعدادات PDF</h3>
+                 <p className="text-violet-100 mb-6">
+                   تعديل إعدادات الطباعة والتقارير
+                 </p>
+                 <button
+                   onClick={() => router.push('/settings')}
+                   className="bg-white text-violet-600 hover:bg-violet-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                 >
+                   ⚙️ فتح الإعدادات
                  </button>
                </div>
              </div>

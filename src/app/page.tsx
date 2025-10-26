@@ -213,37 +213,41 @@ export default function HomePage() {
                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
                    <button
                      onClick={downloadApp}
-                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                     className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                    >
-                     📱 انقر لتحميل التطبيق
-                   </button>
-                   <button
-                     onClick={() => setShowUploadDialog(true)}
-                     className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
-                   >
-                     🔗 رفع رابط التطبيق
+                     📱 تحميل التطبيق
                    </button>
                    {user ? (
-                     <button
-                       onClick={() => router.push('/home')}
-                       className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
-                     >
-                       🏠 الذهاب إلى الصفحة الرئيسية
-                     </button>
+                     <>
+                       <button
+                         onClick={() => router.push('/home')}
+                         className="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                       >
+                         🏠 الذهاب للوحة التحكم
+                       </button>
+                       <button
+                         onClick={() => router.push('/dashboard')}
+                         className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                       >
+                         📊 عرض الإحصائيات
+                       </button>
+                     </>
                    ) : (
                      <button
                        onClick={() => router.push('/login')}
-                       className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                       className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                      >
                        🔐 تسجيل الدخول
                      </button>
                    )}
-                   {/* <button
-                     onClick={addSampleData}
-                     className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
-                   >
-                     🔄 إضافة بيانات تجريبية
-                   </button> */}
+                   {user && (
+                     <button
+                       onClick={() => setShowUploadDialog(true)}
+                       className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                     >
+                       🔗 إدارة التطبيق
+                     </button>
+                   )}
                  </div>
         </div>
 
@@ -299,31 +303,31 @@ export default function HomePage() {
         </div>
 
         {/* Features Section */}
-        {/* <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-xl p-6 shadow-lg text-center">
-            <div className="text-4xl mb-4">📚</div>
-            <h4 className="text-xl font-semibold text-gray-900 mb-2">إدارة الاختبارات</h4>
-            <p className="text-gray-600">
-              أنواع متعددة من الأسئلة مع تصحيح تلقائي ويدوي
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-8 shadow-lg text-center hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+            <div className="text-6xl mb-6">📚</div>
+            <h4 className="text-2xl font-bold text-gray-900 mb-3">إدارة الاختبارات</h4>
+            <p className="text-gray-700 leading-relaxed">
+              أنواع متعددة من الأسئلة مع تصحيح تلقائي ويدوي شامل
             </p>
           </div>
           
-          <div className="bg-white rounded-xl p-6 shadow-lg text-center">
-            <div className="text-4xl mb-4">👥</div>
-            <h4 className="text-xl font-semibold text-gray-900 mb-2">نظام المجموعات</h4>
-            <p className="text-gray-600">
-              إنشاء وإدارة المجموعات مع دعوة الأعضاء
+          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-2 border-indigo-200 rounded-2xl p-8 shadow-lg text-center hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+            <div className="text-6xl mb-6">👥</div>
+            <h4 className="text-2xl font-bold text-gray-900 mb-3">نظام المجموعات</h4>
+            <p className="text-gray-700 leading-relaxed">
+              إنشاء وإدارة المجموعات التعليمية مع دعوة الأعضاء
             </p>
           </div>
           
-          <div className="bg-white rounded-xl p-6 shadow-lg text-center">
-            <div className="text-4xl mb-4">🔔</div>
-            <h4 className="text-xl font-semibold text-gray-900 mb-2">الإشعارات المتقدمة</h4>
-            <p className="text-gray-600">
-              إشعارات محلية وسحابية للأحداث المهمة
+          <div className="bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-slate-200 rounded-2xl p-8 shadow-lg text-center hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+            <div className="text-6xl mb-6">🔔</div>
+            <h4 className="text-2xl font-bold text-gray-900 mb-3">الإشعارات المتقدمة</h4>
+            <p className="text-gray-700 leading-relaxed">
+              نظام إشعارات محلي وسحابي للأحداث المهمة
             </p>
           </div>
-        </div> */}
+        </div>
       </main>
 
       {/* Footer */}
