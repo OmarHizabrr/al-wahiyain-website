@@ -3,8 +3,9 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { firestoreApi } from '@/lib/FirestoreApi';
 import { TestTemplates } from '@/lib/testTemplates';
+import { useMessage } from '@/lib/messageService';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface Question {
   id: string;
@@ -18,6 +19,7 @@ interface Question {
 export default function QuestionsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const { showMessage, showConfirm } = useMessage();
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,16 +30,7 @@ export default function QuestionsPage() {
   const [totalQuestionsCount, setTotalQuestionsCount] = useState(0);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-    if (user) {
-      loadTemplates();
-    }
-  }, [user, loading, router]);
-
-  const loadTemplates = async () => {
+  const loadTemplates = useCallback(async () => {
     setIsLoadingTemplates(true);
     try {
       console.log('Loading templates...');
@@ -74,13 +67,22 @@ export default function QuestionsPage() {
       console.log('Templates loaded:', templateIds.length);
     } catch (error) {
       console.error('Error loading templates:', error);
-      alert('فشل في تحميل المجلدات: ' + error);
+      showMessage('فشل في تحميل المجلدات', 'error');
     } finally {
       setIsLoadingTemplates(false);
     }
-  };
+  }, [showMessage]);
 
-  const loadQuestions = async () => {
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+    if (user) {
+      loadTemplates();
+    }
+  }, [user, loading, router, loadTemplates]);
+
+  const loadQuestions = useCallback(async () => {
     if (!selectedTemplate) return;
 
     setIsLoading(true);
@@ -117,35 +119,42 @@ export default function QuestionsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedTemplate, selectedType, searchQuery]);
 
   useEffect(() => {
     loadQuestions();
-  }, [selectedTemplate, selectedType, searchQuery]);
+  }, [loadQuestions]);
 
   const deleteQuestion = async (questionId: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا السؤال؟')) return;
-
-    try {
-      const questionRef = firestoreApi.getSubDocument(
-        'questions',
-        selectedTemplate,
-        'questions',
-        questionId
-      );
-      await firestoreApi.deleteData(questionRef);
-      loadQuestions();
-      // تحديث عدد الأسئلة في المجلد
-      setTemplateQuestionCounts(prev => ({
-        ...prev,
-        [selectedTemplate]: (prev[selectedTemplate] || 0) - 1
-      }));
-      setTotalQuestionsCount(prev => prev - 1);
-      alert('تم حذف السؤال بنجاح');
-    } catch (error) {
-      console.error('Error deleting question:', error);
-      alert('فشل في حذف السؤال');
-    }
+    showConfirm(
+      'هل أنت متأكد من حذف هذا السؤال؟',
+      async () => {
+        try {
+          const questionRef = firestoreApi.getSubDocument(
+            'questions',
+            selectedTemplate,
+            'questions',
+            questionId
+          );
+          await firestoreApi.deleteData(questionRef);
+          loadQuestions();
+          // تحديث عدد الأسئلة في المجلد
+          setTemplateQuestionCounts(prev => ({
+            ...prev,
+            [selectedTemplate]: (prev[selectedTemplate] || 0) - 1
+          }));
+          setTotalQuestionsCount(prev => prev - 1);
+          showMessage('تم حذف السؤال بنجاح', 'success');
+        } catch (error) {
+          console.error('Error deleting question:', error);
+          showMessage('حدث خطأ أثناء حذف السؤال', 'error');
+        }
+      },
+      undefined,
+      'حذف',
+      'إلغاء',
+      'danger'
+    );
   };
 
   const getTypeLabel = (type: string) => {
