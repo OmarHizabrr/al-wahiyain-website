@@ -6,30 +6,6 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-interface AppDownload {
-  id: string;
-  timestamp: string;
-  date: string;
-  time: string;
-  userAgent: string;
-  platform: string;
-  language: string;
-  screenWidth: number;
-  screenHeight: number;
-  userId: string;
-  userEmail: string;
-  isLoggedIn: boolean;
-  identifier: string;
-  downloadUrl: string;
-  createdAt: string;
-  isOnline: boolean;
-  cookieEnabled: boolean;
-  javaEnabled: boolean;
-  dayOfWeek: string;
-  hour: number;
-  minute: number;
-}
-
 export default function HomePage() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
@@ -37,7 +13,7 @@ export default function HomePage() {
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [newDownloadUrl, setNewDownloadUrl] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
-  const [appDownloads, setAppDownloads] = useState<any[]>([]);
+  const [appDownloads, setAppDownloads] = useState<Record<string, string | number | boolean>[]>([]);
   const [loadingDownloads, setLoadingDownloads] = useState(false);
   const [totalDownloads, setTotalDownloads] = useState(0);
 
@@ -128,7 +104,7 @@ export default function HomePage() {
       
       console.log('عدد المستخدمين الذين حملوا التطبيق:', users.length);
       
-      const allDownloads: any[] = [];
+      const allDownloads: Record<string, string | number | boolean>[] = [];
       let totalCount = 0;
 
       // جلب تحميلات كل مستخدم
@@ -161,8 +137,8 @@ export default function HomePage() {
 
       // ترتيب حسب التاريخ (الأحدث أولاً)
       allDownloads.sort((a, b) => {
-        const dateA = a.createdAt || a.timestamp || '';
-        const dateB = b.createdAt || b.timestamp || '';
+        const dateA = String(a.createdAt || a.timestamp || '');
+        const dateB = String(b.createdAt || b.timestamp || '');
         return dateB.localeCompare(dateA);
       });
 
@@ -173,6 +149,67 @@ export default function HomePage() {
     } catch (error) {
       console.error('خطأ في جلب تحميلات التطبيق:', error);
     } finally {
+      setLoadingDownloads(false);
+    }
+  };
+
+  // دالة لحذف تحميل معين
+  const handleDeleteDownload = async (downloadId: string, userId: string) => {
+    if (!confirm('هل تريد حذف هذا التحميل؟')) {
+      return;
+    }
+
+    try {
+      console.log('حذف التحميل:', downloadId);
+      const docRef = firestoreApi.getSubDocument('app_downloads', userId, 'app_downloads', downloadId);
+      await firestoreApi.deleteData(docRef);
+      console.log('✓ تم حذف التحميل بنجاح');
+      alert('تم حذف التحميل بنجاح');
+      // إعادة تحميل القائمة
+      fetchAppDownloads();
+    } catch (error) {
+      console.error('خطأ في حذف التحميل:', error);
+      alert('حدث خطأ أثناء حذف التحميل');
+    }
+  };
+
+  // دالة لحذف جميع التحميلات
+  const handleDeleteAll = async () => {
+    if (!confirm('هل أنت متأكد من حذف جميع التحميلات؟ هذا الإجراء لا يمكن التراجع عنه!')) {
+      return;
+    }
+
+    try {
+      console.log('حذف جميع التحميلات...');
+      setLoadingDownloads(true);
+      
+      // جلب جميع المستخدمين
+      const appDownloadsRef = firestoreApi.getCollection('app_downloads');
+      const users = await firestoreApi.getAllDocuments(appDownloadsRef);
+      
+      // حذف كل تحميل لكل مستخدم
+      for (const userDoc of users) {
+        const userId = userDoc.id;
+        try {
+          const downloadsRef = firestoreApi.getSubCollection('app_downloads', userId, 'app_downloads');
+          const downloads = await firestoreApi.getAllDocuments(downloadsRef);
+          
+          for (const download of downloads) {
+            const docRef = download.ref;
+            await firestoreApi.deleteData(docRef);
+          }
+        } catch (error) {
+          console.error(`خطأ في حذف تحميلات المستخدم ${userId}:`, error);
+        }
+      }
+
+      alert('تم حذف جميع التحميلات بنجاح');
+      
+      // إعادة تحميل القائمة
+      fetchAppDownloads();
+    } catch (error) {
+      console.error('خطأ في حذف جميع التحميلات:', error);
+      alert('حدث خطأ أثناء حذف التحميلات');
       setLoadingDownloads(false);
     }
   };
@@ -436,16 +473,30 @@ export default function HomePage() {
                 إجمالي التحميلات: <span className="font-bold text-blue-600">{totalDownloads}</span>
               </p>
             </div>
-            <button
-              onClick={fetchAppDownloads}
-              disabled={loadingDownloads}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              <svg className={`w-5 h-5 ${loadingDownloads ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              تحديث
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={fetchAppDownloads}
+                disabled={loadingDownloads}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <svg className={`w-5 h-5 ${loadingDownloads ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                تحديث
+              </button>
+              {appDownloads.length > 0 && (
+                <button
+                  onClick={handleDeleteAll}
+                  disabled={loadingDownloads}
+                  className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  حذف الكل
+                </button>
+              )}
+            </div>
           </div>
 
           {loadingDownloads ? (
@@ -463,11 +514,12 @@ export default function HomePage() {
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الهاتف</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الجهاز</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {appDownloads.slice(0, 50).map((download, index) => (
-                    <tr key={download.id} className="hover:bg-gray-50 transition-colors">
+                  {appDownloads.slice(0, 50).map((download) => (
+                    <tr key={String(download.id)} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{download.date}</div>
                         <div className="text-xs text-gray-500">{download.time}</div>
@@ -506,6 +558,17 @@ export default function HomePage() {
                             {download.isOnline ? 'متصل' : 'غير متصل'}
                           </span>
                         </div>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => handleDeleteDownload(String(download.id), String(download.userId))}
+                          className="text-red-600 hover:text-red-800 transition-colors duration-200 p-2 hover:bg-red-50 rounded-lg"
+                          title="حذف هذا التحميل"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
                       </td>
                     </tr>
                   ))}
