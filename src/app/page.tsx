@@ -141,20 +141,33 @@ export default function HomePage() {
     try {
       await recordAppDownload(userEmail, userName, userPhotoURL);
       console.log('تم إكمال عملية التسجيل');
-      showMessage('تم تسجيل التحميل بنجاح! شكراً لتحميلك التطبيق', 'success');
+      showMessage('تم تسجيل التحميل بنجاح! جاري فتح رابط التحميل...', 'success');
     } catch (error) {
       console.error('✗ خطأ في تسجيل تحميل التطبيق:', error);
       showMessage('حدث خطأ أثناء تسجيل التحميل', 'error');
     }
 
-    // فتح رابط التحميل
-    console.log('جاري فتح رابط التحميل...');
-    if (downloadUrl) {
-      window.open(downloadUrl, '_blank');
-    } else {
-      // رابط احتياطي إذا لم يتم تحميل الرابط بعد
-      window.open('https://drive.google.com/file/d/1ajb9ziS_VpQPmiUa4SNQHyWFNqMpxKIF/view?usp=sharing', '_blank');
-    }
+    // فتح رابط التحميل بعد تأخير صغير للتأكد من اكتمال العملية
+    setTimeout(() => {
+      console.log('جاري فتح رابط التحميل...');
+      const urlToOpen = downloadUrl || 'https://drive.google.com/file/d/1ajb9ziS_VpQPmiUa4SNQHyWFNqMpxKIF/view?usp=sharing';
+      
+      // محاولة فتح النافذة مع معالجة إذا تم الحجب
+      const newWindow = window.open(urlToOpen, '_blank', 'noopener,noreferrer');
+      
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        // إذا فشل فتح النافذة بسبب الحجب، نعرض رسالة للمستخدم
+        console.error('⚠️ تم حجب النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة');
+        showMessage('⚠️ تم حجب النافذة المنبثقة. يرجى السماح للنوافذ المنبثقة في متصفحك', 'warning');
+        
+        // محاولة أخرى بديلة - نافذة منبثقة بالكامل
+        setTimeout(() => {
+          window.location.href = urlToOpen;
+        }, 1000);
+      } else {
+        console.log('✅ تم فتح رابط التحميل بنجاح');
+      }
+    }, 500);
   };
 
   // دالة للحصول على أو إنشاء معرف المستخدم من الكوكيز
