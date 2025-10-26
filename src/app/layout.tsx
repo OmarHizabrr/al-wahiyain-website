@@ -24,17 +24,35 @@ export const metadata: Metadata = {
   creator: "مؤسسة الوحيين الخيرية",
   publisher: "مؤسسة الوحيين الخيرية",
   robots: "index, follow",
+  icons: {
+    icon: [
+      { url: '/logo.png', type: 'image/png', sizes: '32x32' },
+      { url: '/logo.png', type: 'image/png', sizes: '16x16' },
+    ],
+    apple: [
+      { url: '/logo.png', sizes: '180x180' },
+    ],
+  },
   openGraph: {
     title: "مؤسسة الوحيين الخيرية - منصة إدارة المجموعات والاختبارات",
     description: "مؤسسة الوحيين الخيرية اليمن - منصة شاملة لإدارة المجموعات والاختبارات التعليمية",
     type: "website",
     locale: "ar_YE",
     siteName: "مؤسسة الوحيين الخيرية",
+    images: [
+      {
+        url: 'https://al-wahiyain-website.vercel.app/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'مؤسسة الوحيين الخيرية',
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "مؤسسة الوحيين الخيرية",
     description: "منصة شاملة لإدارة المجموعات والاختبارات التعليمية",
+    images: ['https://al-wahiyain-website.vercel.app/logo.png'],
   },
   alternates: {
     canonical: "https://al-wahiyain-website.vercel.app",
