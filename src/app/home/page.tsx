@@ -538,15 +538,31 @@ export default function HomePage() {
                         <div className="text-xs text-gray-400">{download.dayOfWeek}</div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {download.userName || 'غير مسجل'}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {download.isLoggedIn ? (
-                            <span className="text-green-600 font-medium">✅ مسجل دخول</span>
-                          ) : (
-                            <span className="text-orange-600 font-medium">👤 زائر</span>
+                        <div className="flex items-center gap-3">
+                          {download.userPhoto && download.userPhoto !== 'غير متوفر' && (
+                            <div className="relative w-10 h-10">
+                              <Image 
+                                src={String(download.userPhoto)} 
+                                alt={String(download.userName) || 'User'} 
+                                width={40}
+                                height={40}
+                                className="w-10 h-10 rounded-full object-cover border-2 border-blue-100"
+                                unoptimized
+                              />
+                            </div>
                           )}
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {download.userName || 'غير مسجل'}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {download.isLoggedIn ? (
+                                <span className="text-green-600 font-medium">✅ مسجل دخول</span>
+                              ) : (
+                                <span className="text-orange-600 font-medium">👤 زائر</span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td className="px-4 py-4">
