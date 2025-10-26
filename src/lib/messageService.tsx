@@ -174,52 +174,59 @@ export function MessageProvider({ children }: MessageProviderProps) {
 
       {/* Confirm Dialog */}
       {confirmDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-scale-in">
-            {/* Header */}
-            <div className={`${getConfirmColor(confirmDialog.type)} text-white p-6`}>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                  {confirmDialog.type === 'danger' && (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  )}
-                  {confirmDialog.type === 'warning' && (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  )}
-                  {confirmDialog.type === 'info' && (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  )}
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold">تأكيد الإجراء</h3>
-                  <p className="text-sm text-white/80">يرجى تأكيد هذا الإجراء</p>
-                </div>
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-xl shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] max-w-md w-full overflow-hidden animate-scale-in border border-gray-200">
+            {/* Icon */}
+            <div className="flex justify-center pt-8 pb-4">
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                confirmDialog.type === 'danger' ? 'bg-red-100' :
+                confirmDialog.type === 'warning' ? 'bg-yellow-100' :
+                'bg-blue-100'
+              }`}>
+                {confirmDialog.type === 'danger' && (
+                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                )}
+                {confirmDialog.type === 'warning' && (
+                  <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                )}
+                {confirmDialog.type === 'info' && (
+                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
               </div>
             </div>
 
-            {/* Body */}
-            <div className="p-6">
-              <p className="text-gray-700 mb-6 leading-relaxed">{confirmDialog.message}</p>
+            {/* Content */}
+            <div className="px-6 pb-6">
+              <h3 className="text-xl font-bold text-gray-900 text-center mb-3">
+                تأكيد الإجراء
+              </h3>
+              <p className="text-gray-600 text-center mb-6 leading-relaxed">
+                {confirmDialog.message}
+              </p>
               
               {/* Buttons */}
-              <div className="flex gap-3 flex-row-reverse">
-                <button
-                  onClick={handleConfirm}
-                  className={`flex-1 px-6 py-3 ${getConfirmColor(confirmDialog.type)} hover:opacity-90 text-white rounded-xl font-semibold transition-all duration-200 active:scale-95 shadow-lg`}
-                >
-                  {confirmDialog.confirmText}
-                </button>
+              <div className="flex gap-3">
                 <button
                   onClick={handleCancel}
-                  className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-all duration-200 active:scale-95"
+                  className="flex-1 px-6 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg font-semibold transition-all duration-200 active:scale-95 border border-gray-200"
                 >
                   {confirmDialog.cancelText}
+                </button>
+                <button
+                  onClick={handleConfirm}
+                  className={`flex-1 px-6 py-3 text-white rounded-lg font-semibold transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md ${
+                    confirmDialog.type === 'danger' ? 'bg-red-600 hover:bg-red-700' :
+                    confirmDialog.type === 'warning' ? 'bg-yellow-600 hover:bg-yellow-700' :
+                    'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                >
+                  {confirmDialog.confirmText}
                 </button>
               </div>
             </div>
