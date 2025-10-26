@@ -124,7 +124,14 @@ export default function HomePage() {
       } catch (error) {
         console.error('⚠️ خطأ في مصادقة Google:', error);
         const errorCode = error && typeof error === 'object' && 'code' in error ? (error as { code: string }).code : '';
-        if (errorCode !== 'auth/popup-closed-by-user') {
+        
+        if (errorCode === 'auth/unauthorized-domain') {
+          showMessage('⚠️ النطاق غير مسموح في Firebase. يرجى إضافة النطاق al-wahiyain-website.vercel.app في Firebase Console', 'error');
+          console.error('❌ يجب إضافة النطاق إلى Firebase Console:');
+          console.error('1. اذهب إلى Firebase Console');
+          console.error('2. Authentication → Settings → Authorized domains');
+          console.error('3. أضف: al-wahiyain-website.vercel.app');
+        } else if (errorCode !== 'auth/popup-closed-by-user') {
           showMessage('تم إلغاء المصادقة. سيتم المتابعة بدون بريد إلكتروني', 'warning');
         }
       }

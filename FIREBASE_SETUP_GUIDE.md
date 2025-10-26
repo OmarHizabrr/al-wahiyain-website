@@ -28,6 +28,7 @@ The current domain is not authorized for OAuth operations.
 ### 3. النطاقات المطلوبة
 
 يجب إضافة:
+
 - `al-wahiyain-website.vercel.app` (للإنتاج)
 - `localhost` (للتطوير المحلي - مفعل بالفعل)
 - أي نطاقات أخرى تستخدمها (مثل Netlify، إلخ)
@@ -53,5 +54,3 @@ The current domain is not authorized for OAuth operations.
 ## بعد الإصلاح
 
 بعد إضافة النطاق، جرب تحميل التطبيق مرة أخرى. يجب أن تعمل مصادقة Google بشكل صحيح.
-
-
