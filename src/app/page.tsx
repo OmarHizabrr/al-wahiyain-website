@@ -81,14 +81,19 @@ export default function HomePage() {
   };
 
   const downloadApp = async () => {
+    console.log('تم النقر على زر تحميل التطبيق');
+    
     // تسجيل تحميل التطبيق في Firebase
     try {
       await recordAppDownload();
+      console.log('تم إكمال عملية التسجيل');
     } catch (error) {
-      console.error('خطأ في تسجيل تحميل التطبيق:', error);
+      console.error('✗ خطأ في تسجيل تحميل التطبيق:', error);
+      alert('حدث خطأ أثناء تسجيل التحميل. يرجى فتح Console للتفاصيل.');
     }
 
     // فتح رابط التحميل
+    console.log('جاري فتح رابط التحميل...');
     if (downloadUrl) {
       window.open(downloadUrl, '_blank');
     } else {
@@ -132,6 +137,9 @@ export default function HomePage() {
     const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
       const [name, value] = cookie.trim().split('=');
+      if (name === 'visitor_email' && value) {
+        return decodeURIComponent(value);
+      }
       if (name === 'user_email' && value) {
         return decodeURIComponent(value);
       }
@@ -139,8 +147,143 @@ export default function HomePage() {
     return '';
   };
 
+  // محاولة جلب البريد الإلكتروني من المتصفح (Autofill data)
+  const tryGetEmailFromBrowser = async (): Promise<string> => {
+    try {
+      // محاولة استخدام Credential Management API (يعمل فقط مع HTTPS)
+      if ('credentials' in navigator && navigator.credentials) {
+        try {
+          const credential = await navigator.credentials.get({
+            mediation: 'optional',
+          });
+          
+          if (credential && 'id' in credential) {
+            console.log('✅ تم اختيار حساب:', credential.id);
+            if (credential.id.includes('@')) {
+              return credential.id;
+            }
+          }
+        } catch {
+          // تجاهل الخطأ - المتصفح لا يدعم على localhost
+        }
+      }
+
+      // البحث في localStorage عن بريد إلكتروني
+      if (typeof Storage !== 'undefined') {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key || '');
+          if (value && value.includes('@') && value.includes('.')) {
+            const emailMatch = value.match(/[\w\.-]+@[\w\.-]+\.\w+/);
+            if (emailMatch) {
+              return emailMatch[0];
+            }
+          }
+        }
+        
+        // البحث في sessionStorage
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+          const value = sessionStorage.getItem(key || '');
+          if (value && value.includes('@') && value.includes('.')) {
+            const emailMatch = value.match(/[\w\.-]+@[\w\.-]+\.\w+/);
+            if (emailMatch) {
+              return emailMatch[0];
+            }
+          }
+        }
+      }
+    } catch {
+      // تجاهل الأخطاء
+    }
+    return '';
+  };
+
+  // محاولة جلب الاسم من المتصفح
+  const tryGetNameFromBrowser = (): string => {
+    try {
+      // محاولة البحث عن اسم في البيانات المحلية
+      if (typeof Storage !== 'undefined') {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key || '');
+          if (value && (key?.includes('name') || key?.includes('user') || key?.includes('display'))) {
+            console.log('تم العثور على اسم من localStorage:', value);
+            return value;
+          }
+        }
+      }
+    } catch {
+      console.log('لا يمكن الوصول إلى البيانات المحلية');
+    }
+    return '';
+  };
+
+  // محاولة جلب رقم الهاتف من المتصفح
+  const tryGetPhoneFromBrowser = (): string => {
+    try {
+      if (typeof Storage !== 'undefined') {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key || '');
+          if (value && (key?.includes('phone') || key?.includes('mobile') || key?.includes('tel'))) {
+            // التحقق من أن القيمة تبدو كرقم هاتف
+            if (/^[\d\s\+\-\(\)]+$/.test(value)) {
+              console.log('تم العثور على رقم هاتف من localStorage:', value);
+              return value;
+            }
+          }
+        }
+      }
+    } catch {
+      console.log('لا يمكن الوصول إلى البيانات المحلية');
+    }
+    return '';
+  };
+
+  // دوال لجلب معلومات المتصفح
+  const getBrowserName = (): string => {
+    const ua = navigator.userAgent;
+    if (ua.includes('Chrome')) return 'Chrome';
+    if (ua.includes('Firefox')) return 'Firefox';
+    if (ua.includes('Safari')) return 'Safari';
+    if (ua.includes('Edge')) return 'Edge';
+    if (ua.includes('Opera')) return 'Opera';
+    return 'Unknown';
+  };
+
+  const getBrowserVersion = (): string => {
+    const match = navigator.userAgent.match(/(?:chrome|firefox|safari|edge|opera)[\s\/](\d+(\.\d+)?)/i);
+    return match ? match[1] : 'Unknown';
+  };
+
+  const getOSName = (): string => {
+    const ua = navigator.userAgent;
+    if (ua.includes('Windows NT')) return 'Windows';
+    if (ua.includes('Mac OS')) return 'macOS';
+    if (ua.includes('Linux')) return 'Linux';
+    if (ua.includes('Android')) return 'Android';
+    if (ua.includes('iOS')) return 'iOS';
+    return 'Unknown';
+  };
+
+  const getOSVersion = (): string => {
+    const ua = navigator.userAgent;
+    const match = ua.match(/(?:Windows|Android|iOS|macOS)[\s\/]?(\d+(?:\.\d+)?)/);
+    return match ? match[1] : 'Unknown';
+  };
+
+  const detectDeviceType = (): string => {
+    const width = window.screen.width;
+    if (width <= 768) return 'Mobile';
+    if (width <= 1024) return 'Tablet';
+    return 'Desktop';
+  };
+
   const recordAppDownload = async () => {
     try {
+      console.log('بدء تسجيل تحميل التطبيق...');
+      
       const now = new Date();
       const userAgent = navigator.userAgent;
       const platform = navigator.platform;
@@ -162,7 +305,29 @@ export default function HomePage() {
       // الحصول على معرف المستخدم (uid أو visitor_id أو email)
       const userIdentifier = getUserIdentifier();
       const userEmailFromCookies = getUserEmailFromCookies();
+      
+      console.log('معرف المستخدم:', userIdentifier);
+      console.log('إيميل المستخدم من الكوكيز:', userEmailFromCookies);
 
+      // الحصول على بيانات الزائر من المتصفح
+      const browserEmail = await tryGetEmailFromBrowser();
+      const emailFromCookies = getUserEmailFromCookies();
+      
+      const userEmailValue = user?.email || emailFromCookies || browserEmail || 'غير متوفر';
+      const userName = user?.displayName || tryGetNameFromBrowser() || 'زائر';
+      const userPhone = user?.phoneNumber || tryGetPhoneFromBrowser() || '';
+      
+      // محاولة الحصول على معلومات إضافية من المتصفح
+      const browserInfo = {
+        browserName: getBrowserName(),
+        browserVersion: getBrowserVersion(),
+        osName: getOSName(),
+        osVersion: getOSVersion(),
+        deviceType: detectDeviceType(),
+        referrer: document.referrer || 'direct',
+        pageUrl: window.location.href,
+      };
+      
       // الحصول على معلومات إضافية إذا كانت متاحة
       const downloadData = {
         timestamp,
@@ -175,11 +340,21 @@ export default function HomePage() {
         screenHeight,
         // معلومات المستخدم
         userId: user?.uid || 'غير مسجل',
-        userEmail: user?.email || userEmailFromCookies || 'غير مسجل',
+        userEmail: userEmailValue || 'غير متوفر',
+        userName: userName || 'زائر',
+        userPhone: userPhone || 'غير متوفر',
         isLoggedIn: !!user,
         identifier: userIdentifier,
         downloadUrl: downloadUrl || 'https://drive.google.com/file/d/1ajb9ziS_VpQPmiUa4SNQHyWFNqMpxKIF/view?usp=sharing',
         createdAt: timestamp,
+        // معلومات المتصفح الإضافية
+        browserName: browserInfo.browserName,
+        browserVersion: browserInfo.browserVersion,
+        osName: browserInfo.osName,
+        osVersion: browserInfo.osVersion,
+        deviceType: browserInfo.deviceType,
+        referrer: browserInfo.referrer,
+        pageUrl: browserInfo.pageUrl,
         // معلومات عن المتصفح
         isOnline: navigator.onLine,
         cookieEnabled: navigator.cookieEnabled,
@@ -190,8 +365,32 @@ export default function HomePage() {
         minute: now.getMinutes(),
       };
 
+      console.log('بيانات التحميل:', downloadData);
+
+      // التأكد من وجود الوثيقة الرئيسية في app_downloads
+      console.log('التحقق من وجود الوثيقة الرئيسية للمستخدم...');
+      const userDocRef = firestoreApi.getDocument('app_downloads', userIdentifier);
+      const userDoc = await firestoreApi.getData(userDocRef);
+      console.log('نتيجة الوثيقة الرئيسية:', userDoc);
+      
+      if (!userDoc) {
+        console.log('إنشاء وثيقة رئيسية جديدة للمستخدم...');
+        await firestoreApi.setData(userDocRef, {
+          createdAt: timestamp,
+          lastDownloadAt: timestamp,
+          downloadCount: 0,
+          identifier: userIdentifier,
+          userId: user?.uid || 'غير مسجل',
+          userEmail: user?.email || userEmailFromCookies || 'غير مسجل'
+        });
+        console.log('✓ تم إنشاء الوثيقة الرئيسية بنجاح');
+      } else {
+        console.log('الوثيقة الرئيسية موجودة بالفعل');
+      }
+
       // حفظ البيانات في Firebase باستخدام المسار المتداخل
       // المسار: app_downloads/{userIdentifier}/app_downloads/{downloadId}
+      console.log('محاولة حفظ البيانات في Firebase...');
       const docId = await firestoreApi.createSubDocument(
         'app_downloads',
         userIdentifier,
@@ -199,14 +398,23 @@ export default function HomePage() {
         downloadData
       );
 
-      console.log('تم تسجيل تحميل التطبيق بنجاح:', docId);
+      // تحديث عدد التحميلات في الوثيقة الرئيسية
+      const currentCount = (userDoc?.downloadCount as number) || 0;
+      await firestoreApi.updateData(userDocRef, {
+        lastDownloadAt: timestamp,
+        downloadCount: currentCount + 1
+      });
+
+      console.log('✓ تم تسجيل تحميل التطبيق بنجاح:', docId);
+      console.log('المسار:', `app_downloads/${userIdentifier}/app_downloads/${docId}`);
       
       // حفظ الإيميل في الكوكيز للزوار غير المسجلين
       if (!user && userEmailFromCookies) {
         document.cookie = `user_email=${encodeURIComponent(userEmailFromCookies)}; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
       }
     } catch (error) {
-      console.error('حدث خطأ أثناء تسجيل تحميل التطبيق:', error);
+      console.error('✗ حدث خطأ أثناء تسجيل تحميل التطبيق:', error);
+      alert('حدث خطأ أثناء تسجيل التحميل، يرجى فتح Console لمعرفة التفاصيل');
     }
   };
 

@@ -120,9 +120,13 @@ export default function HomePage() {
   const fetchAppDownloads = async () => {
     try {
       setLoadingDownloads(true);
+      console.log('بدء جلب تحميلات التطبيق...');
+      
       // جلب جميع الوثائق من collection الرئيسية app_downloads
       const appDownloadsRef = firestoreApi.getCollection('app_downloads');
       const users = await firestoreApi.getAllDocuments(appDownloadsRef);
+      
+      console.log('عدد المستخدمين الذين حملوا التطبيق:', users.length);
       
       const allDownloads: any[] = [];
       let totalCount = 0;
@@ -130,19 +134,30 @@ export default function HomePage() {
       // جلب تحميلات كل مستخدم
       for (const userDoc of users) {
         const userId = userDoc.id;
-        const downloadsRef = firestoreApi.getSubCollection('app_downloads', userId, 'app_downloads');
-        const downloads = await firestoreApi.getAllDocuments(downloadsRef);
+        console.log('جاري جلب تحميلات المستخدم:', userId);
         
-        // إضافة معلومات المستخدم لكل تحميل
-        const userDownloads = downloads.map(doc => ({
-          id: doc.id,
-          userId: userId,
-          ...doc.data()
-        }));
-        
-        allDownloads.push(...userDownloads);
-        totalCount += downloads.length;
+        try {
+          const downloadsRef = firestoreApi.getSubCollection('app_downloads', userId, 'app_downloads');
+          const downloads = await firestoreApi.getAllDocuments(downloadsRef);
+          
+          console.log(`تم جلب ${downloads.length} تحميل للمستخدم ${userId}`);
+          
+          // إضافة معلومات المستخدم لكل تحميل
+          const userDownloads = downloads.map(doc => ({
+            id: doc.id,
+            userId: userId,
+            ...doc.data()
+          }));
+          
+          allDownloads.push(...userDownloads);
+          totalCount += downloads.length;
+        } catch (error) {
+          console.error(`خطأ في جلب تحميلات المستخدم ${userId}:`, error);
+        }
       }
+
+      console.log('إجمالي التحميلات:', totalCount);
+      console.log('جميع التحميلات:', allDownloads);
 
       // ترتيب حسب التاريخ (الأحدث أولاً)
       allDownloads.sort((a, b) => {
@@ -153,6 +168,8 @@ export default function HomePage() {
 
       setAppDownloads(allDownloads);
       setTotalDownloads(totalCount);
+      
+      console.log('✓ تم جلب التحميلات بنجاح');
     } catch (error) {
       console.error('خطأ في جلب تحميلات التطبيق:', error);
     } finally {
@@ -441,10 +458,10 @@ export default function HomePage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">التاريخ والوقت</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المستخدم</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الاسم</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">البريد الإلكتروني</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الهاتف</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الجهاز</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الشاشة</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المتصفح</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
                   </tr>
                 </thead>
@@ -457,28 +474,31 @@ export default function HomePage() {
                         <div className="text-xs text-gray-400">{download.dayOfWeek}</div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="text-sm text-gray-900">
-                          {download.userEmail !== 'غير مسجل' ? download.userEmail : download.userId}
+                        <div className="text-sm font-medium text-gray-900">
+                          {download.userName || 'غير مسجل'}
                         </div>
                         <div className="text-xs text-gray-500">
                           {download.isLoggedIn ? (
-                            <span className="text-green-600 font-medium">مسجل دخول</span>
+                            <span className="text-green-600 font-medium">✅ مسجل دخول</span>
                           ) : (
-                            <span className="text-orange-600 font-medium">زائر</span>
+                            <span className="text-orange-600 font-medium">👤 زائر</span>
                           )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-900">
+                          {download.userEmail || 'غير متوفر'}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-900">
+                          {download.userPhone || '-'}
                         </div>
                       </td>
                       <td className="px-4 py-4">
                         <div className="text-sm text-gray-900">{download.platform}</div>
                         <div className="text-xs text-gray-500">{download.language}</div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{download.screenWidth} × {download.screenHeight}</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="text-xs text-gray-500 max-w-xs truncate" title={download.userAgent}>
-                          {download.userAgent.length > 50 ? download.userAgent.substring(0, 50) + '...' : download.userAgent}
-                        </div>
+                        <div className="text-xs text-gray-400">{download.screenWidth} × {download.screenHeight}</div>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <div className="text-xs">
