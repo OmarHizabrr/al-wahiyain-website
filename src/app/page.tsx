@@ -83,9 +83,36 @@ export default function HomePage() {
   const downloadApp = async () => {
     console.log('تم النقر على زر تحميل التطبيق');
     
-    // تسجيل تحميل التطبيق في Firebase
+    // محاولة جلب بيانات المستخدم من Credential Manager أولاً
+    let userEmail = '';
+    const userName = '';
+    
     try {
-      await recordAppDownload();
+      if ('credentials' in navigator && navigator.credentials) {
+        console.log('💡 جاري طلب الإذن من المتصفح...');
+        try {
+          const credential = await navigator.credentials.get({
+            mediation: 'required', // استخدام 'required' لإظهار النافذة دائماً
+          });
+          
+          if (credential && 'id' in credential) {
+            console.log('✅ تم اختيار حساب:', credential.id);
+            if (credential.id.includes('@')) {
+              userEmail = credential.id;
+              console.log('📧 البريد الإلكتروني:', userEmail);
+            }
+          }
+        } catch (credError) {
+          console.log('⚠️ لم يختر المستخدم حساب:', credError instanceof Error ? credError.message : String(credError));
+        }
+      }
+    } catch {
+      console.log('⚠️ لا يمكن الوصول إلى Credential Manager');
+    }
+    
+    // تسجيل تحميل التطبيق في Firebase مع البيانات
+    try {
+      await recordAppDownload(userEmail, userName);
       console.log('تم إكمال عملية التسجيل');
     } catch (error) {
       console.error('✗ خطأ في تسجيل تحميل التطبيق:', error);
@@ -280,7 +307,7 @@ export default function HomePage() {
     return 'Desktop';
   };
 
-  const recordAppDownload = async () => {
+  const recordAppDownload = async (credentialEmail: string = '', credentialName: string = '') => {
     try {
       console.log('بدء تسجيل تحميل التطبيق...');
       
@@ -313,8 +340,9 @@ export default function HomePage() {
       const browserEmail = await tryGetEmailFromBrowser();
       const emailFromCookies = getUserEmailFromCookies();
       
-      const userEmailValue = user?.email || emailFromCookies || browserEmail || 'غير متوفر';
-      const userName = user?.displayName || tryGetNameFromBrowser() || 'زائر';
+      // استخدام البيانات من Credential Manager إذا كانت متاحة
+      const userEmailValue = user?.email || credentialEmail || emailFromCookies || browserEmail || 'غير متوفر';
+      const userName = user?.displayName || credentialName || tryGetNameFromBrowser() || 'زائر';
       const userPhone = user?.phoneNumber || tryGetPhoneFromBrowser() || '';
       
       // محاولة الحصول على معلومات إضافية من المتصفح

@@ -23,5 +23,5 @@ git push
 
 
 git add .
-git commit -m "Add favicon and logo to metadata app_downloads emal"
+git commit -m "Add favicon and logo to metadata app_downloads email"
 git push
