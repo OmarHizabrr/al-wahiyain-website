@@ -9,3 +9,13 @@ firebase deploy --project al-wahiyain
 npm run dev
  firebase login
  firebase logout
+
+
+ git add .
+git commit -m "وصف التحديثات"
+git push
+
+cd website
+git add .
+git commit -m "وصف التغييرات الجديدة"
+git push
