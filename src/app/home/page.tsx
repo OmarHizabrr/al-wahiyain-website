@@ -6,6 +6,30 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+interface AppDownload {
+  id: string;
+  timestamp: string;
+  date: string;
+  time: string;
+  userAgent: string;
+  platform: string;
+  language: string;
+  screenWidth: number;
+  screenHeight: number;
+  userId: string;
+  userEmail: string;
+  isLoggedIn: boolean;
+  identifier: string;
+  downloadUrl: string;
+  createdAt: string;
+  isOnline: boolean;
+  cookieEnabled: boolean;
+  javaEnabled: boolean;
+  dayOfWeek: string;
+  hour: number;
+  minute: number;
+}
+
 export default function HomePage() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
@@ -13,6 +37,9 @@ export default function HomePage() {
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [newDownloadUrl, setNewDownloadUrl] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
+  const [appDownloads, setAppDownloads] = useState<any[]>([]);
+  const [loadingDownloads, setLoadingDownloads] = useState(false);
+  const [totalDownloads, setTotalDownloads] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -20,6 +47,7 @@ export default function HomePage() {
     }
     if (user) {
       fetchDownloadUrl();
+      fetchAppDownloads();
     }
   }, [user, loading, router]);
 
@@ -87,6 +115,49 @@ export default function HomePage() {
   const handleLogout = () => {
     logout();
     router.push('/');
+  };
+
+  const fetchAppDownloads = async () => {
+    try {
+      setLoadingDownloads(true);
+      // جلب جميع الوثائق من collection الرئيسية app_downloads
+      const appDownloadsRef = firestoreApi.getCollection('app_downloads');
+      const users = await firestoreApi.getAllDocuments(appDownloadsRef);
+      
+      const allDownloads: any[] = [];
+      let totalCount = 0;
+
+      // جلب تحميلات كل مستخدم
+      for (const userDoc of users) {
+        const userId = userDoc.id;
+        const downloadsRef = firestoreApi.getSubCollection('app_downloads', userId, 'app_downloads');
+        const downloads = await firestoreApi.getAllDocuments(downloadsRef);
+        
+        // إضافة معلومات المستخدم لكل تحميل
+        const userDownloads = downloads.map(doc => ({
+          id: doc.id,
+          userId: userId,
+          ...doc.data()
+        }));
+        
+        allDownloads.push(...userDownloads);
+        totalCount += downloads.length;
+      }
+
+      // ترتيب حسب التاريخ (الأحدث أولاً)
+      allDownloads.sort((a, b) => {
+        const dateA = a.createdAt || a.timestamp || '';
+        const dateB = b.createdAt || b.timestamp || '';
+        return dateB.localeCompare(dateA);
+      });
+
+      setAppDownloads(allDownloads);
+      setTotalDownloads(totalCount);
+    } catch (error) {
+      console.error('خطأ في جلب تحميلات التطبيق:', error);
+    } finally {
+      setLoadingDownloads(false);
+    }
   };
 
   if (loading) {
@@ -336,6 +407,103 @@ export default function HomePage() {
                  </button>
                </div>
              </div>
+
+        {/* App Downloads Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                محملي التطبيق
+              </h3>
+              <p className="text-gray-600">
+                إجمالي التحميلات: <span className="font-bold text-blue-600">{totalDownloads}</span>
+              </p>
+            </div>
+            <button
+              onClick={fetchAppDownloads}
+              disabled={loadingDownloads}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <svg className={`w-5 h-5 ${loadingDownloads ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              تحديث
+            </button>
+          </div>
+
+          {loadingDownloads ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          ) : appDownloads.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">التاريخ والوقت</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المستخدم</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الجهاز</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الشاشة</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المتصفح</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الحالة</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {appDownloads.slice(0, 50).map((download, index) => (
+                    <tr key={download.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{download.date}</div>
+                        <div className="text-xs text-gray-500">{download.time}</div>
+                        <div className="text-xs text-gray-400">{download.dayOfWeek}</div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-900">
+                          {download.userEmail !== 'غير مسجل' ? download.userEmail : download.userId}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {download.isLoggedIn ? (
+                            <span className="text-green-600 font-medium">مسجل دخول</span>
+                          ) : (
+                            <span className="text-orange-600 font-medium">زائر</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-900">{download.platform}</div>
+                        <div className="text-xs text-gray-500">{download.language}</div>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{download.screenWidth} × {download.screenHeight}</div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="text-xs text-gray-500 max-w-xs truncate" title={download.userAgent}>
+                          {download.userAgent.length > 50 ? download.userAgent.substring(0, 50) + '...' : download.userAgent}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <div className="text-xs">
+                          <span className={`px-2 py-1 rounded-full ${download.isOnline ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {download.isOnline ? 'متصل' : 'غير متصل'}
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📱</div>
+              <p className="text-gray-500 text-lg">
+                لا توجد تحميلات حتى الآن
+              </p>
+              <p className="text-gray-400 mt-2">
+                سيتم عرض التحميلات هنا عند تحميل المستخدمين للتطبيق
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Recent Activity */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
