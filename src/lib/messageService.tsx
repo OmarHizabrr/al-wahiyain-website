@@ -174,14 +174,14 @@ export function MessageProvider({ children }: MessageProviderProps) {
 
       {/* Confirm Dialog */}
       {confirmDialog && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-xl shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] max-w-md w-full overflow-hidden animate-scale-in border border-gray-200">
-            {/* Icon */}
-            <div className="flex justify-center pt-8 pb-4">
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                confirmDialog.type === 'danger' ? 'bg-red-100' :
-                confirmDialog.type === 'warning' ? 'bg-yellow-100' :
-                'bg-blue-100'
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-[1px] flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full animate-scale-in">
+            {/* Header with Icon */}
+            <div className="flex justify-center pt-8 pb-4 border-b border-gray-100">
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center opacity-10 ${
+                confirmDialog.type === 'danger' ? 'bg-red-500' :
+                confirmDialog.type === 'warning' ? 'bg-yellow-500' :
+                'bg-blue-500'
               }`}>
                 {confirmDialog.type === 'danger' && (
                   <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,26 +201,28 @@ export function MessageProvider({ children }: MessageProviderProps) {
               </div>
             </div>
 
-            {/* Content */}
-            <div className="px-6 pb-6">
-              <h3 className="text-xl font-bold text-gray-900 text-center mb-3">
-                تأكيد الإجراء
-              </h3>
-              <p className="text-gray-600 text-center mb-6 leading-relaxed">
+            {/* Body */}
+            <div className="p-6 pt-4 text-center">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                {confirmDialog.type === 'danger' ? 'تأكيد الحذف' :
+                 confirmDialog.type === 'warning' ? 'تأكيد الإجراء' :
+                 'تأكيد'}
+              </h2>
+              <p className="text-gray-600 mb-4">
                 {confirmDialog.message}
               </p>
               
               {/* Buttons */}
-              <div className="flex gap-3">
+              <div className="flex justify-center gap-3 mt-6">
                 <button
                   onClick={handleCancel}
-                  className="flex-1 px-6 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg font-semibold transition-all duration-200 active:scale-95 border border-gray-200"
+                  className="px-6 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg font-medium transition-all duration-200"
                 >
                   {confirmDialog.cancelText}
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className={`flex-1 px-6 py-3 text-white rounded-lg font-semibold transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md ${
+                  className={`px-6 py-2.5 text-white rounded-lg font-medium transition-all duration-200 ${
                     confirmDialog.type === 'danger' ? 'bg-red-600 hover:bg-red-700' :
                     confirmDialog.type === 'warning' ? 'bg-yellow-600 hover:bg-yellow-700' :
                     'bg-blue-600 hover:bg-blue-700'
