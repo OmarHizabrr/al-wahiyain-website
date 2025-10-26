@@ -2,7 +2,10 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { firestoreApi } from '@/lib/FirestoreApi';
+import { googleAuthProvider } from '@/lib/firebase';
 import { useMessage } from '@/lib/messageService';
+import { signInWithPopup, signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -86,29 +89,45 @@ export default function HomePage() {
     console.log('تم النقر على زر تحميل التطبيق');
     
     let userEmail = '';
+    let userName = '';
     
-    // إذا كان المستخدم غير مسجل دخول، نطلب البريد الإلكتروني
+    // إذا كان المستخدم غير مسجل دخول، نطلب المصادقة من Google
     if (!user) {
-      // محاولة جلب البريد من الكوكيز أولاً
-      const cookieEmail = getUserEmailFromCookies();
-      if (cookieEmail) {
-        userEmail = cookieEmail;
-        console.log('📧 البريد من الكوكيز:', userEmail);
-      } else {
-        // عرض نافذة لإدخال البريد
-        const email = prompt('يرجى إدخال بريدك الإلكتروني (اختياري):');
-        if (email && email.includes('@')) {
-          userEmail = email;
-          // حفظ البريد في الكوكيز
-          document.cookie = `user_email=${encodeURIComponent(email)}; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
-          console.log('📧 البريد المُدخل:', email);
+      try {
+        console.log('🔐 جاري طلب مصادقة Google...');
+        showMessage('جارٍ طلب المصادقة من Google...', 'info');
+        
+        const result = await signInWithPopup(auth, googleAuthProvider);
+        const googleUser = result.user;
+        
+        console.log('✅ تمت المصادقة بنجاح:', googleUser.email);
+        console.log('👤 الاسم:', googleUser.displayName);
+        
+        userEmail = googleUser.email || '';
+        userName = googleUser.displayName || '';
+        
+        // حفظ البريد في الكوكيز
+        if (userEmail) {
+          document.cookie = `user_email=${encodeURIComponent(userEmail)}; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
+        }
+        
+        showMessage(`مرحباً ${userName}! شكراً لتسجيلك`, 'success');
+        
+        // تسجيل الخروج تلقائياً بعد الحصول على البيانات
+        await signOut(auth);
+        console.log('🔄 تم تسجيل الخروج تلقائياً');
+      } catch (error) {
+        console.error('⚠️ خطأ في مصادقة Google:', error);
+        const errorCode = error && typeof error === 'object' && 'code' in error ? (error as { code: string }).code : '';
+        if (errorCode !== 'auth/popup-closed-by-user') {
+          showMessage('تم إلغاء المصادقة. سيتم المتابعة بدون بريد إلكتروني', 'warning');
         }
       }
     }
     
     // تسجيل تحميل التطبيق في Firebase مع البيانات
     try {
-      await recordAppDownload(userEmail, '');
+      await recordAppDownload(userEmail, userName);
       console.log('تم إكمال عملية التسجيل');
       showMessage('تم تسجيل التحميل بنجاح! شكراً لتحميلك التطبيق', 'success');
     } catch (error) {
