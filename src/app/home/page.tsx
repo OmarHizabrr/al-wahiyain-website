@@ -156,13 +156,14 @@ export default function HomePage() {
   };
 
   // دالة لحذف تحميل معين
-  const handleDeleteDownload = async (downloadId: string, userId: string) => {
+  const handleDeleteDownload = async (downloadId: string, identifier: string) => {
     showConfirm(
       'هل تريد حذف هذا التحميل؟',
       async () => {
         try {
           console.log('حذف التحميل:', downloadId);
-          const docRef = firestoreApi.getSubDocument('app_downloads', userId, 'app_downloads', downloadId);
+          console.log('معرف المستخدم:', identifier);
+          const docRef = firestoreApi.getSubDocument('app_downloads', identifier, 'app_downloads', downloadId);
           await firestoreApi.deleteData(docRef);
           console.log('✓ تم حذف التحميل بنجاح');
           showMessage('تم حذف التحميل بنجاح', 'success');
@@ -589,7 +590,7 @@ export default function HomePage() {
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <button
-                          onClick={() => handleDeleteDownload(String(download.id), String(download.userId))}
+                          onClick={() => handleDeleteDownload(String(download.id), String(download.identifier))}
                           className="text-red-600 hover:text-red-800 transition-colors duration-200 p-2 hover:bg-red-50 rounded-lg"
                           title="حذف هذا التحميل"
                         >
