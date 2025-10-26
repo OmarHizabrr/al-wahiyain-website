@@ -2,10 +2,9 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { firestoreApi } from '@/lib/FirestoreApi';
-import { googleAuthProvider } from '@/lib/firebase';
+import { auth, googleAuthProvider } from '@/lib/firebase';
 import { useMessage } from '@/lib/messageService';
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -90,6 +89,7 @@ export default function HomePage() {
     
     let userEmail = '';
     let userName = '';
+    let userPhotoURL = '';
     
     // إذا كان المستخدم غير مسجل دخول، نطلب المصادقة من Google
     if (!user) {
@@ -102,13 +102,18 @@ export default function HomePage() {
         
         console.log('✅ تمت المصادقة بنجاح:', googleUser.email);
         console.log('👤 الاسم:', googleUser.displayName);
+        console.log('📷 الصورة:', googleUser.photoURL);
         
         userEmail = googleUser.email || '';
         userName = googleUser.displayName || '';
+        userPhotoURL = googleUser.photoURL || '';
         
-        // حفظ البريد في الكوكيز
+        // حفظ البريد والصورة في الكوكيز
         if (userEmail) {
           document.cookie = `user_email=${encodeURIComponent(userEmail)}; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
+        }
+        if (userPhotoURL) {
+          document.cookie = `user_photo=${encodeURIComponent(userPhotoURL)}; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
         }
         
         showMessage(`مرحباً ${userName}! شكراً لتسجيلك`, 'success');
@@ -127,7 +132,7 @@ export default function HomePage() {
     
     // تسجيل تحميل التطبيق في Firebase مع البيانات
     try {
-      await recordAppDownload(userEmail, userName);
+      await recordAppDownload(userEmail, userName, userPhotoURL);
       console.log('تم إكمال عملية التسجيل');
       showMessage('تم تسجيل التحميل بنجاح! شكراً لتحميلك التطبيق', 'success');
     } catch (error) {
@@ -323,7 +328,7 @@ export default function HomePage() {
     return 'Desktop';
   };
 
-  const recordAppDownload = async (credentialEmail: string = '', credentialName: string = '') => {
+  const recordAppDownload = async (credentialEmail: string = '', credentialName: string = '', credentialPhoto: string = '') => {
     try {
       console.log('بدء تسجيل تحميل التطبيق...');
       
@@ -361,6 +366,18 @@ export default function HomePage() {
       const userName = user?.displayName || credentialName || tryGetNameFromBrowser() || 'زائر';
       const userPhone = user?.phoneNumber || tryGetPhoneFromBrowser() || '';
       
+      // الحصول على الصورة من الكوكيز
+      const cookies = document.cookie.split(';');
+      let userPhotoFromCookies = '';
+      for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'user_photo' && value) {
+          userPhotoFromCookies = decodeURIComponent(value);
+          break;
+        }
+      }
+      const userPhotoValue = user?.photoURL || credentialPhoto || userPhotoFromCookies || '';
+      
       // محاولة الحصول على معلومات إضافية من المتصفح
       const browserInfo = {
         browserName: getBrowserName(),
@@ -387,6 +404,7 @@ export default function HomePage() {
         userEmail: userEmailValue || 'غير متوفر',
         userName: userName || 'زائر',
         userPhone: userPhone || 'غير متوفر',
+        userPhoto: userPhotoValue || 'غير متوفر',
         isLoggedIn: !!user,
         identifier: userIdentifier,
         downloadUrl: downloadUrl || 'https://drive.google.com/file/d/1ajb9ziS_VpQPmiUa4SNQHyWFNqMpxKIF/view?usp=sharing',
