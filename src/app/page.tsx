@@ -116,6 +116,7 @@ export default function HomePage() {
     try {
       await recordAppDownload(userEmail, userName);
       console.log('تم إكمال عملية التسجيل');
+      showMessage('تم تسجيل التحميل بنجاح! شكراً لتحميلك التطبيق', 'success');
     } catch (error) {
       console.error('✗ خطأ في تسجيل تحميل التطبيق:', error);
       showMessage('حدث خطأ أثناء تسجيل التحميل', 'error');
