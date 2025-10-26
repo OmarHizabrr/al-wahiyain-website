@@ -85,44 +85,30 @@ export default function HomePage() {
   const downloadApp = async () => {
     console.log('تم النقر على زر تحميل التطبيق');
     
-    // محاولة جلب بيانات المستخدم من Credential Manager أولاً
     let userEmail = '';
-    const userName = '';
     
-    try {
-      if ('credentials' in navigator && navigator.credentials) {
-        console.log('💡 جاري طلب الإذن من المتصفح...');
-        console.log('🔧 Credential Manager متوفر');
-        try {
-          const credential = await navigator.credentials.get({
-            mediation: 'required', // استخدام 'required' لإظهار النافذة دائماً
-          });
-          
-          console.log('📊 نتيجة Credential Manager:', credential);
-          
-          if (credential && typeof credential === 'object' && 'id' in credential) {
-            console.log('✅ تم اختيار حساب:', credential.id);
-            if (credential.id.includes('@')) {
-              userEmail = credential.id;
-              console.log('📧 البريد الإلكتروني:', userEmail);
-            }
-          } else {
-            console.log('⚠️ لم يتم اختيار حساب أو بيانات غير صالحة');
-          }
-        } catch (credError) {
-          console.log('⚠️ خطأ في Credential Manager:', credError instanceof Error ? credError.message : String(credError));
-          console.log('⚠️ نوع الخطأ:', typeof credError);
-        }
+    // إذا كان المستخدم غير مسجل دخول، نطلب البريد الإلكتروني
+    if (!user) {
+      // محاولة جلب البريد من الكوكيز أولاً
+      const cookieEmail = getUserEmailFromCookies();
+      if (cookieEmail) {
+        userEmail = cookieEmail;
+        console.log('📧 البريد من الكوكيز:', userEmail);
       } else {
-        console.log('⚠️ Credential Manager غير متوفر في هذا المتصفح');
+        // عرض نافذة لإدخال البريد
+        const email = prompt('يرجى إدخال بريدك الإلكتروني (اختياري):');
+        if (email && email.includes('@')) {
+          userEmail = email;
+          // حفظ البريد في الكوكيز
+          document.cookie = `user_email=${encodeURIComponent(email)}; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
+          console.log('📧 البريد المُدخل:', email);
+        }
       }
-    } catch (error) {
-      console.log('⚠️ لا يمكن الوصول إلى Credential Manager:', error);
     }
     
     // تسجيل تحميل التطبيق في Firebase مع البيانات
     try {
-      await recordAppDownload(userEmail, userName);
+      await recordAppDownload(userEmail, '');
       console.log('تم إكمال عملية التسجيل');
       showMessage('تم تسجيل التحميل بنجاح! شكراً لتحميلك التطبيق', 'success');
     } catch (error) {
