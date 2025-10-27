@@ -38,7 +38,7 @@ export default function HomePage() {
         const configData = docs[0].data() as Record<string, unknown>;
         setDownloadUrl((configData.downloadUrl as string) || '');
       } else {
-        setDownloadUrl('https://drive.google.com/file/d/1ajb9ziS_VpQPmiUa4SNQHyWFNqMpxKIF/view?usp=sharing');
+        setDownloadUrl('https://drive.google.com/file/d/1lv5MXhnfUEtpLVeSbCTAaUrx_-9U04Ol/view?usp=sharing');
       }
     } catch (error) {
       console.error('Error fetching download URL:', error);

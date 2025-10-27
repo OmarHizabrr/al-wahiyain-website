@@ -75,7 +75,7 @@ export default function HomePage() {
         setDownloadUrl((configData.downloadUrl as string) || '');
       } else {
         // رابط افتراضي إذا لم يوجد في Firebase
-        setDownloadUrl('https://drive.google.com/file/d/1ajb9ziS_VpQPmiUa4SNQHyWFNqMpxKIF/view?usp=sharing');
+        setDownloadUrl('https://drive.google.com/file/d/1lv5MXhnfUEtpLVeSbCTAaUrx_-9U04Ol/view?usp=sharing');
       }
     } catch (error) {
       console.error('Error fetching download URL:', error);
@@ -150,7 +150,7 @@ export default function HomePage() {
     // فتح رابط التحميل بعد تأخير صغير للتأكد من اكتمال العملية
     setTimeout(() => {
       console.log('جاري فتح رابط التحميل...');
-      const urlToOpen = downloadUrl || 'https://drive.google.com/file/d/1ajb9ziS_VpQPmiUa4SNQHyWFNqMpxKIF/view?usp=sharing';
+      const urlToOpen = downloadUrl || 'https://drive.google.com/file/d/1lv5MXhnfUEtpLVeSbCTAaUrx_-9U04Ol/view?usp=sharing';
       
       // محاولة فتح النافذة مع معالجة إذا تم الحجب
       const newWindow = window.open(urlToOpen, '_blank', 'noopener,noreferrer');
@@ -164,7 +164,7 @@ export default function HomePage() {
         setTimeout(() => {
           window.location.href = urlToOpen;
         }, 1000);
-      } else {
+    } else {
         console.log('✅ تم فتح رابط التحميل بنجاح');
       }
     }, 500);
@@ -427,7 +427,7 @@ export default function HomePage() {
         userPhoto: userPhotoValue || 'غير متوفر',
         isLoggedIn: !!user,
         identifier: userIdentifier,
-        downloadUrl: downloadUrl || 'https://drive.google.com/file/d/1ajb9ziS_VpQPmiUa4SNQHyWFNqMpxKIF/view?usp=sharing',
+        downloadUrl: downloadUrl || 'https://drive.google.com/file/d/1lv5MXhnfUEtpLVeSbCTAaUrx_-9U04Ol/view?usp=sharing',
         createdAt: timestamp,
         // معلومات المتصفح الإضافية
         browserName: browserInfo.browserName,
