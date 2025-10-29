@@ -1,10 +1,26 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { firestoreApi } from '@/lib/FirestoreApi';
+import { useMessage } from '@/lib/messageService';
 import { LoginCredentials } from '@/types/user';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+interface AppVersion {
+  id: string;
+  name: string;
+  downloadUrl: string;
+  version?: string;
+  size?: string;
+  description?: string;
+  icon?: string;
+  isVisible: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  order?: number;
+}
 
 export default function LoginPage() {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -14,8 +30,52 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const router = useRouter();
+  const { showMessage } = useMessage();
+  
+  // إدارة التطبيقات
+  const [appVersions, setAppVersions] = useState<AppVersion[]>([]);
+  const [showAppSelectionDialog, setShowAppSelectionDialog] = useState(false);
+  const [loadingApps, setLoadingApps] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchAppVersions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  const fetchAppVersions = async (): Promise<AppVersion[]> => {
+    try {
+      setLoadingApps(true);
+      const appsRef = firestoreApi.getCollection('app_versions');
+      const docs = await firestoreApi.getDocuments(appsRef);
+      
+      const visibleApps = docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        } as AppVersion))
+        .filter((app) => app.isVisible !== false)
+        .sort((a, b) => {
+          const orderA = a.order || 0;
+          const orderB = b.order || 0;
+          if (orderA !== orderB) return orderB - orderA;
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+      
+      setAppVersions(visibleApps);
+      return visibleApps;
+    } catch (error) {
+      console.error('خطأ في جلب التطبيقات:', error);
+      return [];
+    } finally {
+      setLoadingApps(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,11 +84,125 @@ export default function LoginPage() {
 
     try {
       await login(credentials);
-      router.push('/home');
+      // بعد تسجيل الدخول، نجلب التطبيقات
+      const apps = await fetchAppVersions();
+      
+      // إذا كان هناك تطبيقات، نعرض نافذة اختيار التطبيق
+      // وإلا نوجه للوحة التحكم
+      if (apps.length > 0) {
+        setShowAppSelectionDialog(true);
+      } else {
+        router.push('/home');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'حدث خطأ في تسجيل الدخول');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadAppClick = async () => {
+    if (!user) {
+      showMessage('يرجى تسجيل الدخول أولاً', 'warning');
+      return;
+    }
+    
+    if (appVersions.length === 0) {
+      showMessage('لا توجد تطبيقات متاحة للتحميل حالياً', 'info');
+      return;
+    }
+    
+    setShowAppSelectionDialog(true);
+  };
+
+  const handleAppSelect = async (selectedApp: AppVersion) => {
+    setShowAppSelectionDialog(false);
+    
+    // الحصول على بيانات المستخدم
+    const userEmail = user?.email || '';
+    const userName = user?.displayName || 'زائر';
+    const userPhotoURL = user?.photoURL || '';
+    
+    // تسجيل تحميل التطبيق في Firebase
+    try {
+      await recordAppDownload(userEmail, userName, userPhotoURL, selectedApp.downloadUrl);
+      showMessage(`تم تسجيل التحميل بنجاح! جاري فتح رابط ${selectedApp.name}...`, 'success');
+    } catch (error) {
+      console.error('✗ خطأ في تسجيل تحميل التطبيق:', error);
+      showMessage('حدث خطأ أثناء تسجيل التحميل', 'error');
+    }
+
+    // فتح رابط التحميل
+    setTimeout(() => {
+      const urlToOpen = selectedApp.downloadUrl;
+      const newWindow = window.open(urlToOpen, '_blank', 'noopener,noreferrer');
+      
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        showMessage('⚠️ تم حجب النافذة المنبثقة. يرجى السماح للنوافذ المنبثقة في متصفحك', 'warning');
+        setTimeout(() => {
+          window.location.href = urlToOpen;
+        }, 1000);
+      }
+    }, 500);
+  };
+
+  const recordAppDownload = async (userEmail: string, userName: string, userPhotoURL: string, appDownloadUrl: string) => {
+    try {
+      const now = new Date();
+      const timestamp = now.toISOString();
+      const userIdentifier = user?.uid || userEmail || 'visitor';
+      
+      const downloadData = {
+        timestamp,
+        date: now.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' }),
+        time: now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        screenWidth: window.screen.width,
+        screenHeight: window.screen.height,
+        userId: user?.uid || 'غير مسجل',
+        userEmail: userEmail || 'غير متوفر',
+        userName: userName || 'زائر',
+        userPhoto: userPhotoURL || 'غير متوفر',
+        isLoggedIn: !!user,
+        identifier: userIdentifier,
+        downloadUrl: appDownloadUrl,
+        createdAt: timestamp,
+      };
+
+      // التأكد من وجود الوثيقة الرئيسية
+      const userDocRef = firestoreApi.getDocument('app_downloads', userIdentifier);
+      const userDoc = await firestoreApi.getData(userDocRef);
+      
+      if (!userDoc) {
+        await firestoreApi.setData(userDocRef, {
+          createdAt: timestamp,
+          lastDownloadAt: timestamp,
+          downloadCount: 0,
+          identifier: userIdentifier,
+          userId: user?.uid || 'غير مسجل',
+          userEmail: userEmail || 'غير مسجل'
+        });
+      }
+
+      // حفظ البيانات في Firebase
+      await firestoreApi.createSubDocument(
+        'app_downloads',
+        userIdentifier,
+        'app_downloads',
+        downloadData
+      );
+
+      // تحديث عدد التحميلات
+      const currentCount = (userDoc?.downloadCount as number) || 0;
+      await firestoreApi.updateData(userDocRef, {
+        lastDownloadAt: timestamp,
+        downloadCount: currentCount + 1
+      });
+    } catch (error) {
+      console.error('✗ حدث خطأ أثناء تسجيل تحميل التطبيق:', error);
+      throw error;
     }
   };
 
@@ -153,8 +327,27 @@ export default function LoginPage() {
             </button>
           </div>
 
+          {/* Actions after login */}
+          {user && (
+            <div className="mt-6 space-y-3">
+              <button
+                onClick={() => router.push('/home')}
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+              >
+                🏠 الذهاب للوحة التحكم
+              </button>
+              <button
+                onClick={handleDownloadAppClick}
+                disabled={loadingApps || appVersions.length === 0}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                📱 تحميل التطبيق
+              </button>
+            </div>
+          )}
+
           {/* Back to Home */}
-          <div className="text-center">
+          <div className="text-center mt-4">
             <button
               onClick={() => router.push('/')}
               className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
@@ -164,6 +357,99 @@ export default function LoginPage() {
           </div>
         </form>
       </div>
+
+      {/* نافذة اختيار التطبيق */}
+      {showAppSelectionDialog && (
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-[1px] flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-2xl font-bold text-gray-900">اختر تطبيق للتحميل</h3>
+              <button
+                onClick={() => setShowAppSelectionDialog(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              {loadingApps ? (
+                <div className="text-center py-12">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <p className="mt-4 text-gray-600">جاري جلب التطبيقات...</p>
+                </div>
+              ) : appVersions.length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <p className="mt-4 text-gray-600">لا توجد تطبيقات متاحة</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {appVersions.map((app) => (
+                    <button
+                      key={app.id}
+                      onClick={() => handleAppSelect(app)}
+                      className="text-right bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border-2 border-blue-200 hover:border-blue-400 rounded-xl p-6 transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
+                    >
+                      <div className="flex items-start gap-4">
+                        {app.icon ? (
+                          <Image
+                            src={app.icon}
+                            alt={app.name}
+                            width={64}
+                            height={64}
+                            className="w-16 h-16 rounded-lg object-cover border-2 border-white shadow-md"
+                            unoptimized
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+                            {app.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <h4 className="text-xl font-bold text-gray-900 mb-1">{app.name}</h4>
+                          {app.description && (
+                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">{app.description}</p>
+                          )}
+                          <div className="flex flex-wrap gap-3 text-xs text-gray-500">
+                            {app.version && (
+                              <span className="flex items-center gap-1 bg-white px-2 py-1 rounded-md">
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                {app.version}
+                              </span>
+                            )}
+                            {app.size && (
+                              <span className="flex items-center gap-1 bg-white px-2 py-1 rounded-md">
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                                </svg>
+                                {app.size}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-blue-600">
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          </svg>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

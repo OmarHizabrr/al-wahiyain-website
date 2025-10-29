@@ -136,22 +136,11 @@ export default function HomePage() {
   const downloadApp = async () => {
     console.log('تم النقر على زر تحميل التطبيق');
     
-    // إذا لم يكن هناك تطبيقات، نستخدم النظام القديم
-    if (appVersions.length === 0) {
-      await downloadAppLegacy();
-      return;
-    }
-
-    // إظهار نافذة اختيار التطبيق
-    setShowAppSelectionDialog(true);
-  };
-
-  const downloadAppLegacy = async () => {
     let userEmail = '';
     let userName = '';
     let userPhotoURL = '';
     
-    // إذا كان المستخدم غير مسجل دخول، نطلب المصادقة من Google
+    // إذا كان المستخدم غير مسجل دخول، نطلب المصادقة من Google أولاً
     if (!user) {
       try {
         console.log('🔐 جاري طلب مصادقة Google...');
@@ -176,11 +165,19 @@ export default function HomePage() {
           document.cookie = `user_photo=${encodeURIComponent(userPhotoURL)}; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
         }
         
-        showMessage(`مرحباً ${userName}! شكراً لتسجيلك`, 'success');
+        showMessage(`مرحباً ${userName}! تم تسجيل الدخول بنجاح`, 'success');
         
-        // تسجيل الخروج تلقائياً بعد الحصول على البيانات
-        await signOut(auth);
-        console.log('🔄 تم تسجيل الخروج تلقائياً');
+        // بعد تسجيل الدخول، نعرض قائمة التطبيقات
+        if (appVersions.length === 0) {
+          // إذا لم يكن هناك تطبيقات، نستخدم النظام القديم
+          await downloadAppLegacy(userEmail, userName, userPhotoURL);
+          // تسجيل الخروج تلقائياً بعد الحصول على البيانات (للنظام القديم فقط)
+          await signOut(auth);
+          return;
+        }
+        
+        // إظهار نافذة اختيار التطبيق بعد تسجيل الدخول
+        setShowAppSelectionDialog(true);
       } catch (error) {
         console.error('⚠️ خطأ في مصادقة Google:', error);
         const errorCode = error && typeof error === 'object' && 'code' in error ? (error as { code: string }).code : '';
@@ -194,7 +191,27 @@ export default function HomePage() {
         } else if (errorCode !== 'auth/popup-closed-by-user') {
           showMessage('تم إلغاء المصادقة. سيتم المتابعة بدون بريد إلكتروني', 'warning');
         }
+        return;
       }
+    } else {
+      // إذا كان المستخدم مسجل دخول، نعرض قائمة التطبيقات مباشرة
+      if (appVersions.length === 0) {
+        // إذا لم يكن هناك تطبيقات، نستخدم النظام القديم
+        await downloadAppLegacy(user?.email || '', user?.displayName || '', user?.photoURL || '');
+        return;
+      }
+      
+      // إظهار نافذة اختيار التطبيق
+      setShowAppSelectionDialog(true);
+    }
+  };
+
+  const downloadAppLegacy = async (userEmail: string = '', userName: string = '', userPhotoURL: string = '') => {
+    // إذا كانت البيانات غير متوفرة، نحاول الحصول عليها من المستخدم الحالي أو الكوكيز
+    if (!userEmail || !userName) {
+      userEmail = user?.email || getUserEmailFromCookies() || '';
+      userName = user?.displayName || tryGetNameFromBrowser() || 'زائر';
+      userPhotoURL = user?.photoURL || getUserPhotoFromCookies() || '';
     }
     
     // تسجيل تحميل التطبيق في Firebase مع البيانات
@@ -233,55 +250,10 @@ export default function HomePage() {
   const handleAppSelect = async (selectedApp: AppVersion) => {
     setShowAppSelectionDialog(false);
     
-    let userEmail = '';
-    let userName = '';
-    let userPhotoURL = '';
-    
-    // إذا كان المستخدم غير مسجل دخول، نطلب المصادقة من Google
-    if (!user) {
-      try {
-        console.log('🔐 جاري طلب مصادقة Google...');
-        showMessage('جارٍ طلب المصادقة من Google...', 'info');
-        
-        const result = await signInWithPopup(auth, googleAuthProvider);
-        const googleUser = result.user;
-        
-        console.log('✅ تمت المصادقة بنجاح:', googleUser.email);
-        console.log('👤 الاسم:', googleUser.displayName);
-        console.log('📷 الصورة:', googleUser.photoURL);
-        
-        userEmail = googleUser.email || '';
-        userName = googleUser.displayName || '';
-        userPhotoURL = googleUser.photoURL || '';
-        
-        // حفظ البريد والصورة في الكوكيز
-        if (userEmail) {
-          document.cookie = `user_email=${encodeURIComponent(userEmail)}; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
-        }
-        if (userPhotoURL) {
-          document.cookie = `user_photo=${encodeURIComponent(userPhotoURL)}; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
-        }
-        
-        showMessage(`مرحباً ${userName}! شكراً لتسجيلك`, 'success');
-        
-        // تسجيل الخروج تلقائياً بعد الحصول على البيانات
-        await signOut(auth);
-        console.log('🔄 تم تسجيل الخروج تلقائياً');
-      } catch (error) {
-        console.error('⚠️ خطأ في مصادقة Google:', error);
-        const errorCode = error && typeof error === 'object' && 'code' in error ? (error as { code: string }).code : '';
-        
-        if (errorCode === 'auth/unauthorized-domain') {
-          showMessage('⚠️ النطاق غير مسموح في Firebase. يرجى إضافة النطاق al-wahiyain-website.vercel.app في Firebase Console', 'error');
-          console.error('❌ يجب إضافة النطاق إلى Firebase Console:');
-          console.error('1. اذهب إلى Firebase Console');
-          console.error('2. Authentication → Settings → Authorized domains');
-          console.error('3. أضف: al-wahiyain-website.vercel.app');
-        } else if (errorCode !== 'auth/popup-closed-by-user') {
-          showMessage('تم إلغاء المصادقة. سيتم المتابعة بدون بريد إلكتروني', 'warning');
-        }
-      }
-    }
+    // الحصول على بيانات المستخدم (من Firebase أو الكوكيز)
+    const userEmail = user?.email || getUserEmailFromCookies() || '';
+    const userName = user?.displayName || tryGetNameFromBrowser() || 'زائر';
+    const userPhotoURL = user?.photoURL || getUserPhotoFromCookies() || '';
     
     // تسجيل تحميل التطبيق في Firebase مع البيانات
     try {
@@ -355,6 +327,22 @@ export default function HomePage() {
         return decodeURIComponent(value);
       }
       if (name === 'user_email' && value) {
+        return decodeURIComponent(value);
+      }
+    }
+    return '';
+  };
+
+  // دالة للحصول على الصورة من الكوكيز إذا كانت متوفرة
+  const getUserPhotoFromCookies = (): string => {
+    if (user?.photoURL) {
+      return user.photoURL;
+    }
+
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'user_photo' && value) {
         return decodeURIComponent(value);
       }
     }
