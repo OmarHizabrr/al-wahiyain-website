@@ -11,10 +11,6 @@ export default function HomePage() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const { showMessage, showConfirm } = useMessage();
-  const [downloadUrl, setDownloadUrl] = useState<string>('');
-  const [showUploadDialog, setShowUploadDialog] = useState(false);
-  const [newDownloadUrl, setNewDownloadUrl] = useState<string>('');
-  const [isSaving, setIsSaving] = useState(false);
   const [appDownloads, setAppDownloads] = useState<Record<string, string | number | boolean>[]>([]);
   const [loadingDownloads, setLoadingDownloads] = useState(false);
   const [totalDownloads, setTotalDownloads] = useState(0);
@@ -24,71 +20,9 @@ export default function HomePage() {
       router.push('/login');
     }
     if (user) {
-      fetchDownloadUrl();
       fetchAppDownloads();
     }
   }, [user, loading, router]);
-
-  const fetchDownloadUrl = async () => {
-    try {
-      const configRef = firestoreApi.getCollection('app_config');
-      const docs = await firestoreApi.getDocuments(configRef, undefined, undefined, 1);
-      
-      if (docs.length > 0) {
-        const configData = docs[0].data() as Record<string, unknown>;
-        setDownloadUrl((configData.downloadUrl as string) || '');
-      } else {
-        setDownloadUrl('https://drive.google.com/file/d/1lv5MXhnfUEtpLVeSbCTAaUrx_-9U04Ol/view?usp=sharing');
-      }
-    } catch (error) {
-      console.error('Error fetching download URL:', error);
-      setDownloadUrl('https://drive.google.com/file/d/1ajb9ziS_VpQPmiUa4SNQHyWFNqMpxKIF/view?usp=sharing');
-    }
-  };
-
-  const handleSaveDownloadUrl = async () => {
-    if (!newDownloadUrl.trim()) {
-      showMessage('يرجى إدخال رابط التحميل', 'warning');
-      return;
-    }
-
-    try {
-      setIsSaving(true);
-      
-      // البحث عن مستند التكوين الحالي
-      const configRef = firestoreApi.getCollection('app_config');
-      const docs = await firestoreApi.getDocuments(configRef, undefined, undefined, 1);
-      
-      let docRef;
-      if (docs.length > 0) {
-        // تحديث المستند الموجود
-        docRef = docs[0].ref;
-        await firestoreApi.updateData(docRef, {
-          downloadUrl: newDownloadUrl,
-          updatedAt: new Date().toISOString(),
-        });
-      } else {
-        // إنشاء مستند جديد
-        const newDocId = await firestoreApi.createDocument('app_config', {
-          downloadUrl: newDownloadUrl,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-        docRef = firestoreApi.getDocument('app_config', newDocId);
-      }
-
-      // تحديث رابط التحميل
-      setDownloadUrl(newDownloadUrl);
-      setShowUploadDialog(false);
-      setNewDownloadUrl('');
-      showMessage('تم حفظ رابط التحميل بنجاح!', 'success');
-    } catch (error) {
-      console.error('خطأ في حفظ رابط التحميل:', error);
-      showMessage('حدث خطأ أثناء حفظ رابط التحميل', 'error');
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const handleLogout = () => {
     logout();
@@ -439,21 +373,15 @@ export default function HomePage() {
              <div className="mt-8">
                <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-8 shadow-lg text-center text-white">
                  <div className="text-5xl mb-4">📱</div>
-                 <h3 className="text-2xl font-bold mb-2">إدارة التطبيق</h3>
+                 <h3 className="text-2xl font-bold mb-2">إدارة التطبيقات</h3>
                  <p className="text-green-100 mb-6">
-                   رفع وتحديث رابط تحميل التطبيق
+                   إضافة وتعديل تطبيقات التحميل المتعددة
                  </p>
-                 {downloadUrl && (
-                   <div className="mb-4 p-4 bg-white/20 rounded-lg">
-                     <p className="text-sm text-green-50 mb-2">الرابط الحالي:</p>
-                     <p className="text-xs break-all">{downloadUrl}</p>
-                   </div>
-                 )}
                  <button
-                   onClick={() => setShowUploadDialog(true)}
+                   onClick={() => router.push('/settings')}
                    className="bg-white text-green-600 hover:bg-green-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
                  >
-                   📱 رفع رابط التطبيق
+                   ⚙️ فتح إعدادات التطبيقات
                  </button>
                </div>
              </div>
@@ -634,110 +562,6 @@ export default function HomePage() {
         </div>
       </main>
 
-      {/* Upload Dialog */}
-      {showUploadDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold">رفع رابط التطبيق</h2>
-                    <p className="text-sm text-white/80">أدخل رابط تحميل التطبيق</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setShowUploadDialog(false);
-                    setNewDownloadUrl('');
-                  }}
-                  className="text-white/80 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Body */}
-            <div className="p-6">
-              {/* Current Download URL */}
-              {downloadUrl && (
-                <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
-                    <span className="text-sm font-semibold text-blue-600">الرابط الحالي:</span>
-                  </div>
-                  <p className="text-sm text-blue-700 break-all">{downloadUrl}</p>
-                </div>
-              )}
-
-              {/* Input */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  رابط التحميل الجديد
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={newDownloadUrl}
-                    onChange={(e) => setNewDownloadUrl(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleSaveDownloadUrl();
-                      }
-                    }}
-                    placeholder="https://..."
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-gray-900"
-                    autoFocus
-                  />
-                  <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                  </svg>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">أدخل رابط التحميل من Google Drive أو أي مصدر آخر</p>
-              </div>
-
-              {/* Buttons */}
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setShowUploadDialog(false);
-                    setNewDownloadUrl('');
-                  }}
-                  disabled={isSaving}
-                  className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50"
-                >
-                  إلغاء
-                </button>
-                <button
-                  onClick={handleSaveDownloadUrl}
-                  disabled={isSaving || !newDownloadUrl.trim()}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-semibold shadow-lg shadow-green-200 transition-all duration-200 active:scale-95 disabled:opacity-50"
-                >
-                  {isSaving ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-                      <span>جاري الحفظ...</span>
-                    </span>
-                  ) : (
-                    'حفظ'
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
