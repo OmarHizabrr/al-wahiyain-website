@@ -377,12 +377,12 @@ export default function HomePage() {
                  <p className="text-green-100 mb-6">
                    إضافة وتعديل تطبيقات التحميل المتعددة
                  </p>
-                 <button
-                   onClick={() => router.push('/settings')}
-                   className="bg-white text-green-600 hover:bg-green-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
-                 >
-                   ⚙️ فتح إعدادات التطبيقات
-                 </button>
+                <button
+                  onClick={() => router.push('/apps-management')}
+                  className="bg-white text-green-600 hover:bg-green-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                >
+                  📱 إدارة التطبيقات
+                </button>
                </div>
              </div>
 
