@@ -2,6 +2,7 @@
 
 import { firestoreApi } from '@/lib/FirestoreApi';
 import Image from 'next/image';
+import { useMessage } from '@/lib/messageService';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -49,6 +50,7 @@ export default function GroupDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const groupId = params?.groupId as string;
+  const { showMessage, showConfirm } = useMessage();
 
   const [groupData, setGroupData] = useState<GroupData | null>(null);
   const [members, setMembers] = useState<MemberData[]>([]);
@@ -90,7 +92,7 @@ export default function GroupDetailsPage() {
       }
     } catch (error) {
       console.error('Error loading group data:', error);
-      alert('حدث خطأ في تحميل بيانات المجموعة');
+      showMessage('حدث خطأ في تحميل بيانات المجموعة', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -335,46 +337,39 @@ export default function GroupDetailsPage() {
   };
 
   const handleDeleteStudent = async (student: StudentData) => {
-    const confirmed = confirm(
-      `هل أنت متأكد من حذف الطالب "${student.studentName}"؟\n\nسيتم حذف:\n• جميع محاولات الاختبار\n• جميع التعديلات والمراجعات\n• جميع البيانات الإحصائية\n\nهذا الإجراء لا يمكن التراجع عنه!`
+    showConfirm(
+      `هل أنت متأكد من حذف الطالب "${student.studentName}"؟\n\nسيتم حذف:\n• جميع محاولات الاختبار\n• جميع التعديلات والمراجعات\n• جميع البيانات الإحصائية\n\nهذا الإجراء لا يمكن التراجع عنه!`,
+      async () => {
+        try {
+          setIsLoadingStudents(true);
+          const attemptsRef = firestoreApi.getSubCollectionRef(
+            'student_test_attempts',
+            groupId,
+            'student_test_attempts'
+          );
+          const docs = await firestoreApi.getDocuments(
+            attemptsRef,
+            'studentName',
+            student.studentName
+          );
+          const deletePromises = docs.map(async (doc) => {
+            await firestoreApi.deleteData(doc.ref);
+          });
+          await Promise.all(deletePromises);
+          await loadStudents();
+          showMessage(`تم حذف الطالب "${student.studentName}" وجميع البيانات المتعلقة به بنجاح`, 'success');
+        } catch (error) {
+          console.error('❌ خطأ في حذف الطالب:', error);
+          showMessage('فشل في حذف الطالب. حاول مرة أخرى.', 'error');
+        } finally {
+          setIsLoadingStudents(false);
+        }
+      },
+      undefined,
+      'حذف',
+      'إلغاء',
+      'danger'
     );
-
-    if (!confirmed) return;
-
-    try {
-      setIsLoadingStudents(true);
-
-      // جلب جميع محاولات الطالب وحذفها
-      const attemptsRef = firestoreApi.getSubCollectionRef(
-        'student_test_attempts',
-        groupId,
-        'student_test_attempts'
-      );
-      
-      const docs = await firestoreApi.getDocuments(
-        attemptsRef,
-        'studentName',
-        student.studentName
-      );
-
-      // حذف جميع المحاولات
-      const deletePromises = docs.map(async (doc) => {
-        await firestoreApi.deleteData(doc.ref);
-      });
-      await Promise.all(deletePromises);
-
-      console.log(`✅ تم حذف ${docs.length} محاولة للطالب "${student.studentName}"`);
-
-      // تحديث القائمة
-      await loadStudents();
-
-      alert(`✅ تم حذف الطالب "${student.studentName}" وجميع البيانات المتعلقة به بنجاح`);
-    } catch (error) {
-      console.error('❌ خطأ في حذف الطالب:', error);
-      alert('❌ فشل في حذف الطالب. حاول مرة أخرى.');
-    } finally {
-      setIsLoadingStudents(false);
-    }
   };
 
   if (isLoading) {

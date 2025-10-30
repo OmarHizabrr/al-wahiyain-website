@@ -2,6 +2,7 @@
 
 import { firestoreApi } from '@/lib/FirestoreApi';
 import Image from 'next/image';
+import { useMessage } from '@/lib/messageService';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -20,6 +21,7 @@ interface User {
 
 export default function UsersManagementPage() {
   const router = useRouter();
+  const { showMessage, showConfirm } = useMessage();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,7 +67,7 @@ export default function UsersManagementPage() {
       setUsers(loadedUsers);
     } catch (error) {
       console.error('Error loading users:', error);
-      alert('حدث خطأ في تحميل المستخدمين');
+      showMessage('حدث خطأ في تحميل المستخدمين', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -113,27 +115,32 @@ export default function UsersManagementPage() {
       setEditModalOpen(false);
       setEditingUser(null);
       loadUsers();
-      alert('تم تحديث بيانات المستخدم بنجاح');
+      showMessage('تم تحديث بيانات المستخدم بنجاح', 'success');
     } catch (error) {
       console.error('Error updating user:', error);
-      alert('حدث خطأ في تحديث المستخدم');
+      showMessage('حدث خطأ في تحديث المستخدم', 'error');
     }
   };
 
   const handleDelete = async (userId: string, displayName: string) => {
-    if (!confirm(`هل أنت متأكد من حذف المستخدم "${displayName}"؟`)) {
-      return;
-    }
-
-    try {
-      const userRef = firestoreApi.getDocument('users', userId);
-      await firestoreApi.deleteData(userRef);
-      loadUsers();
-      alert('تم حذف المستخدم بنجاح');
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      alert('حدث خطأ في حذف المستخدم');
-    }
+    showConfirm(
+      `هل أنت متأكد من حذف المستخدم "${displayName}"؟`,
+      async () => {
+        try {
+          const userRef = firestoreApi.getDocument('users', userId);
+          await firestoreApi.deleteData(userRef);
+          loadUsers();
+          showMessage('تم حذف المستخدم بنجاح', 'success');
+        } catch (error) {
+          console.error('Error deleting user:', error);
+          showMessage('حدث خطأ في حذف المستخدم', 'error');
+        }
+      },
+      undefined,
+      'حذف',
+      'إلغاء',
+      'danger'
+    );
   };
 
   const filteredUsers = users.filter((user) => {

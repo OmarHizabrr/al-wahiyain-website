@@ -3,6 +3,7 @@
 import { firestoreApi } from '@/lib/FirestoreApi';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useMessage } from '@/lib/messageService';
 
 interface TestAttempt {
   id: string;
@@ -29,6 +30,7 @@ export default function StudentDetailsPage() {
   const params = useParams();
   const groupId = params?.groupId as string;
   const studentId = params?.studentId as string;
+  const { showMessage, showConfirm } = useMessage();
 
   const [testAttempts, setTestAttempts] = useState<TestAttempt[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -151,27 +153,24 @@ export default function StudentDetailsPage() {
   };
 
   const handleDeleteAttempt = async (attempt: TestAttempt) => {
-    const confirmed = confirm(
-      `هل أنت متأكد من حذف محاولة الاختبار "${attempt.testTitle}"؟\n\nسيتم حذف جميع بيانات هذه المحاولة.\n\nهذا الإجراء لا يمكن التراجع عنه!`
+    showConfirm(
+      `هل أنت متأكد من حذف محاولة الاختبار "${attempt.testTitle}"؟\n\nسيتم حذف جميع بيانات هذه المحاولة.\n\nهذا الإجراء لا يمكن التراجع عنه!`,
+      async () => {
+        try {
+          const attemptRef = firestoreApi.getDocument('student_test_attempts', attempt.id);
+          await firestoreApi.deleteData(attemptRef);
+          await loadStudentData();
+          showMessage('تم حذف المحاولة بنجاح', 'success');
+        } catch (error) {
+          console.error('❌ خطأ في حذف المحاولة:', error);
+          showMessage('فشل في حذف المحاولة. حاول مرة أخرى.', 'error');
+        }
+      },
+      undefined,
+      'حذف',
+      'إلغاء',
+      'danger'
     );
-
-    if (!confirmed) return;
-
-    try {
-      // حذف المحاولة
-      const attemptRef = firestoreApi.getDocument('student_test_attempts', attempt.id);
-      await firestoreApi.deleteData(attemptRef);
-
-      console.log(`✅ تم حذف المحاولة "${attempt.testTitle}"`);
-
-      // تحديث القائمة
-      await loadStudentData();
-
-      alert('✅ تم حذف المحاولة بنجاح');
-    } catch (error) {
-      console.error('❌ خطأ في حذف المحاولة:', error);
-      alert('❌ فشل في حذف المحاولة. حاول مرة أخرى.');
-    }
   };
 
   const handleViewAttempt = (attempt: TestAttempt) => {

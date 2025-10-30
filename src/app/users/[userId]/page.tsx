@@ -2,6 +2,7 @@
 
 import { firestoreApi } from '@/lib/FirestoreApi';
 import Image from 'next/image';
+import { useMessage } from '@/lib/messageService';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -35,6 +36,7 @@ export default function UserDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const userId = params?.userId as string;
+  const { showMessage } = useMessage();
 
   const [userData, setUserData] = useState<UserData | null>(null);
   const [userGroups, setUserGroups] = useState<GroupData[]>([]);
@@ -73,7 +75,7 @@ export default function UserDetailsPage() {
       }
     } catch (error) {
       console.error('Error loading user data:', error);
-      alert('حدث خطأ في تحميل بيانات المستخدم');
+      showMessage('حدث خطأ في تحميل بيانات المستخدم', 'error');
     } finally {
       setIsLoading(false);
     }
