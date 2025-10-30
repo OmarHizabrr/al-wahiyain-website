@@ -570,7 +570,7 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
           <p className="text-xl text-gray-600">جاري تحميل البيانات...</p>
@@ -580,7 +580,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -630,22 +630,20 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Last Updated */}
-        <div className="bg-gradient-to-r from-indigo-500 to-blue-600 rounded-xl p-4 mb-6 text-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 space-x-reverse">
-              <span className="text-2xl">📊</span>
-              <div>
-                <p className="font-semibold">آخر تحديث</p>
-                <p className="text-sm text-indigo-100">
-                  {lastUpdated.toLocaleString('ar-SA', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </p>
-              </div>
+        <div className="card mb-6">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">📊</span>
+            <div>
+              <p className="font-semibold text-gray-900">آخر تحديث</p>
+              <p className="text-sm text-gray-500">
+                {lastUpdated.toLocaleString('ar-SA', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </p>
             </div>
           </div>
         </div>
@@ -724,7 +722,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Groups Details */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div className="card mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">تفاصيل المجموعات</h2>
           
           {stats.groupsDetails.length === 0 ? (
@@ -1011,7 +1009,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Questions by Template */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="card">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">توزيع الأسئلة حسب المجلد</h2>
           <div className="space-y-3">
             {Object.entries(stats.questionsByTemplate).map(([templateId, count]) => (
