@@ -263,7 +263,6 @@ export default function LoginPage() {
                 className="input"
                 inputMode="numeric"
                 pattern="\\d*"
-                minLength={9}
                 maxLength={15}
                 aria-label="رقم الهاتف اليمني"
               />
