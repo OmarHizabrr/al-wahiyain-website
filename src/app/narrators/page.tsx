@@ -333,13 +333,13 @@ export default function NarratorsManagementPage() {
             <div className="flex items-center space-x-4 space-x-reverse">
               <button
                 onClick={loadNarrators}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                className="btn-primary"
               >
                 🔄 تحديث البيانات
               </button>
               <button
                 onClick={() => router.push('/home')}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                className="btn-secondary"
               >
                 🏠 العودة
               </button>
@@ -355,7 +355,7 @@ export default function NarratorsManagementPage() {
           <div className="space-y-4">
             {/* Search Field */}
             <div>
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="search" className="label">
                 البحث في الرواة والأسئلة
               </label>
               <input
@@ -364,13 +364,13 @@ export default function NarratorsManagementPage() {
                 placeholder="ابحث في الرواة..."
                 value={searchQuery}
                 onChange={(e) => searchNarrators(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900 placeholder-gray-500"
+                className="input"
               />
             </div>
 
             {/* Narrator Filter */}
             <div>
-              <label htmlFor="narrator-filter" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="narrator-filter" className="label">
                 فلترة حسب الراوي
               </label>
               <select
@@ -380,7 +380,7 @@ export default function NarratorsManagementPage() {
                   setSelectedType(e.target.value || null);
                   applyNarratorFilter();
                 }}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900"
+                className="input"
               >
                 {getNarratorTypes().map((narrator) => (
                   <option key={narrator.value || 'all'} value={narrator.value || ''}>

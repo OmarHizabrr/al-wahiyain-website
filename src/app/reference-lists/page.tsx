@@ -274,7 +274,7 @@ export default function ReferenceListsManagementPage() {
             </div>
             <button
               onClick={() => router.push('/home')}
-              className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+              className="btn-secondary"
             >
               🏠 العودة
             </button>
@@ -327,7 +327,7 @@ export default function ReferenceListsManagementPage() {
               placeholder={`ابحث في ${collectionInfo.title}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900"
+              className="flex-1 input"
             />
             <button
               onClick={() => {
@@ -406,8 +406,8 @@ export default function ReferenceListsManagementPage() {
 
       {/* Add Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+        <div className="dialog-overlay">
+          <div className="dialog-panel max-w-md mx-4 p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               إضافة {collectionInfo.title}
             </h2>
@@ -416,7 +416,7 @@ export default function ReferenceListsManagementPage() {
               placeholder="أدخل الاسم"
               value={newItemName}
               onChange={(e) => setNewItemName(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 mb-6"
+              className="input mb-6"
               autoFocus
             />
             <div className="flex gap-4">
@@ -425,13 +425,13 @@ export default function ReferenceListsManagementPage() {
                   setIsAddModalOpen(false);
                   setNewItemName('');
                 }}
-                className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                className="btn-ghost flex-1"
               >
                 إلغاء
               </button>
               <button
                 onClick={handleAdd}
-                className={`flex-1 px-6 py-3 bg-${collectionInfo.color}-600 hover:bg-${collectionInfo.color}-700 text-white font-medium rounded-lg transition-colors duration-200`}
+                className={`flex-1 btn-primary`}
               >
                 إضافة
               </button>
@@ -442,8 +442,8 @@ export default function ReferenceListsManagementPage() {
 
       {/* Edit Modal */}
       {isEditModalOpen && editingItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+        <div className="dialog-overlay">
+          <div className="dialog-panel max-w-md mx-4 p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               تعديل {collectionInfo.title}
             </h2>
@@ -452,19 +452,19 @@ export default function ReferenceListsManagementPage() {
               placeholder="أدخل الاسم"
               value={newItemName}
               onChange={(e) => setNewItemName(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 mb-6"
+              className="input mb-6"
               autoFocus
             />
             <div className="flex gap-4">
               <button
                 onClick={closeEditModal}
-                className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                className="btn-ghost flex-1"
               >
                 إلغاء
               </button>
               <button
                 onClick={handleEdit}
-                className={`flex-1 px-6 py-3 bg-${collectionInfo.color}-600 hover:bg-${collectionInfo.color}-700 text-white font-medium rounded-lg transition-colors duration-200`}
+                className={`flex-1 btn-primary`}
               >
                 حفظ
               </button>

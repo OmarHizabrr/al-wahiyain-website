@@ -273,13 +273,13 @@ export default function BooksManagementPage() {
             <div className="flex items-center space-x-4 space-x-reverse">
               <button
                 onClick={loadBooks}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                className="btn-primary"
               >
                 🔄 تحديث البيانات
               </button>
               <button
                 onClick={() => router.push('/home')}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                className="btn-secondary"
               >
                 🏠 العودة
               </button>
@@ -295,7 +295,7 @@ export default function BooksManagementPage() {
           <div className="space-y-4">
             {/* Search Field */}
             <div>
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="search" className="label">
                 البحث في الكتب والأسئلة
               </label>
               <input
@@ -304,13 +304,13 @@ export default function BooksManagementPage() {
                 placeholder="ابحث في الكتب..."
                 value={searchQuery}
                 onChange={(e) => searchBooks(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900 placeholder-gray-500"
+                className="input"
               />
             </div>
 
             {/* Book Filter */}
             <div>
-              <label htmlFor="book-filter" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="book-filter" className="label">
                 فلترة حسب الكتاب
               </label>
               <select
@@ -320,7 +320,7 @@ export default function BooksManagementPage() {
                   setSelectedType(e.target.value || null);
                   applyBookFilter();
                 }}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900"
+                className="input"
               >
                 {getBookTypes().map((book) => (
                   <option key={book.value || 'all'} value={book.value || ''}>
