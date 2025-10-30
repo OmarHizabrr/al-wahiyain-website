@@ -208,10 +208,13 @@ export default function LoginPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCredentials(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    if (name === 'phoneNumber') {
+      // السماح بالأرقام فقط وتطبيع القيمة
+      const digitsOnly = value.replace(/\D/g, '');
+      setCredentials(prev => ({ ...prev, phoneNumber: digitsOnly }));
+      return;
+    }
+    setCredentials(prev => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -251,7 +254,12 @@ export default function LoginPage() {
                 onChange={handleInputChange}
                 placeholder="مثال: 967712345678"
                 className="input"
+                inputMode="numeric"
+                pattern="\\d*"
+                maxLength={12}
+                aria-label="رقم الهاتف اليمني"
               />
+              <p className="mt-1 text-xs text-gray-500">مسموح بالأرقام فقط. يُفضّل التنسيق الدولي: 9677XXXXXXXX</p>
             </div>
 
             {/* Password */}
