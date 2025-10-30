@@ -25,7 +25,7 @@ interface AppVersion {
 export default function AppsManagementPage() {
   const { showMessage, showConfirm } = useMessage();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [appVersions, setAppVersions] = useState<AppVersion[]>([]);
   const [loadingApps, setLoadingApps] = useState(true);
   const [showAddAppDialog, setShowAddAppDialog] = useState(false);
@@ -42,7 +42,8 @@ export default function AppsManagementPage() {
   });
 
   useEffect(() => {
-    // حماية الصفحة: السماح فقط للمستخدمين المسجلين
+    // انتظر حتى تكتمل حالة التحميل قبل اتخاذ قرار الحماية
+    if (loading) return;
     if (!user) {
       showMessage('يرجى تسجيل الدخول للوصول إلى إدارة التطبيقات', 'warning');
       router.push('/login');
@@ -50,7 +51,7 @@ export default function AppsManagementPage() {
     }
     fetchAppVersions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, loading]);
 
   const fetchAppVersions = async () => {
     try {
