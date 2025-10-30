@@ -1,5 +1,6 @@
 import { AuthProvider } from "@/contexts/AuthContext";
 import { MessageProvider } from "@/lib/messageService";
+import TopNavClient from './TopNavClient';
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -73,10 +74,11 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
       </head>
-      <body className="antialiased">
+        <body className="antialiased">
         <AuthProvider>
           <MessageProvider>
-            {children}
+              <TopNavClient />
+              {children}
           </MessageProvider>
         </AuthProvider>
       </body>
