@@ -4,6 +4,7 @@ import { firestoreApi } from '@/lib/FirestoreApi';
 import { ReferenceListsService } from '@/lib/referenceListsService';
 import { TestTemplates } from '@/lib/testTemplates';
 import Image from 'next/image';
+import { useMessage } from '@/lib/messageService';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -24,6 +25,7 @@ interface QuestionInfo {
 export default function BooksManagementPage() {
   const router = useRouter();
   const referenceService = ReferenceListsService.instance;
+  const { showMessage, showConfirm } = useMessage();
 
   const [allBooks, setAllBooks] = useState<string[]>([]);
   const [bookQuestionCounts, setBookQuestionCounts] = useState<Record<string, number>>({});
@@ -178,26 +180,29 @@ export default function BooksManagementPage() {
   };
 
   const deleteQuestion = async (questionInfo: QuestionInfo) => {
-    const confirmed = window.confirm('هل أنت متأكد من حذف هذا السؤال؟');
-    
-    if (confirmed) {
-      try {
-        const questionDocRef = firestoreApi.getSubDocument(
-          'questions',
-          questionInfo.templateId,
-          'questions',
-          questionInfo.id
-        );
-
-        await firestoreApi.deleteData(questionDocRef);
-        alert('تم حذف السؤال بنجاح');
-        
-        loadBooks();
-      } catch (error) {
-        console.error('Error deleting question:', error);
-        alert('فشل في حذف السؤال');
-      }
-    }
+    showConfirm(
+      'هل أنت متأكد من حذف هذا السؤال؟',
+      async () => {
+        try {
+          const questionDocRef = firestoreApi.getSubDocument(
+            'questions',
+            questionInfo.templateId,
+            'questions',
+            questionInfo.id
+          );
+          await firestoreApi.deleteData(questionDocRef);
+          showMessage('تم حذف السؤال بنجاح', 'success');
+          loadBooks();
+        } catch (error) {
+          console.error('Error deleting question:', error);
+          showMessage('فشل في حذف السؤال', 'error');
+        }
+      },
+      undefined,
+      'حذف',
+      'إلغاء',
+      'danger'
+    );
   };
 
   const filteredQuestions = getFilteredQuestions();

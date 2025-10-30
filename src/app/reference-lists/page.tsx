@@ -3,6 +3,7 @@
 import { firestoreApi } from '@/lib/FirestoreApi';
 import { ReferenceListsService } from '@/lib/referenceListsService';
 import Image from 'next/image';
+import { useMessage } from '@/lib/messageService';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -16,6 +17,7 @@ type ListType = 'narrators' | 'books' | 'attributions';
 
 export default function ReferenceListsManagementPage() {
   const router = useRouter();
+  const { showMessage, showConfirm } = useMessage();
   const [activeTab, setActiveTab] = useState<ListType>('narrators');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -108,7 +110,7 @@ export default function ReferenceListsManagementPage() {
       setItems(loadedItems);
     } catch (error) {
       console.error('Error loading items:', error);
-      alert('حدث خطأ في تحميل البيانات');
+      showMessage('حدث خطأ في تحميل البيانات', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -133,14 +135,14 @@ export default function ReferenceListsManagementPage() {
 
   const handleAdd = async () => {
     if (!newItemName.trim()) {
-      alert('يرجى إدخال اسم');
+      showMessage('يرجى إدخال اسم', 'warning');
       return;
     }
 
     // Check for duplicates
     const isDuplicate = await checkDuplicate(newItemName);
     if (isDuplicate) {
-      alert(`"${newItemName}" موجود بالفعل`);
+      showMessage(`"${newItemName}" موجود بالفعل`, 'warning');
       return;
     }
 
@@ -164,10 +166,10 @@ export default function ReferenceListsManagementPage() {
       setIsAddModalOpen(false);
       setNewItemName('');
       await Promise.all([loadItemsCount(), loadItems()]);
-      alert('تمت الإضافة بنجاح');
+      showMessage('تمت الإضافة بنجاح', 'success');
     } catch (error) {
       console.error('Error adding item:', error);
-      alert('حدث خطأ في الإضافة');
+      showMessage('حدث خطأ في الإضافة', 'error');
     }
   };
 
@@ -179,7 +181,7 @@ export default function ReferenceListsManagementPage() {
     // Check for duplicates
     const isDuplicate = await checkDuplicate(newItemName, editingItem.id);
     if (isDuplicate) {
-      alert(`"${newItemName}" موجود بالفعل`);
+      showMessage(`"${newItemName}" موجود بالفعل`, 'warning');
       return;
     }
 
@@ -203,37 +205,38 @@ export default function ReferenceListsManagementPage() {
       setEditingItem(null);
       setNewItemName('');
       await Promise.all([loadItemsCount(), loadItems()]);
-      alert('تم التعديل بنجاح');
+      showMessage('تم التعديل بنجاح', 'success');
     } catch (error) {
       console.error('Error editing item:', error);
-      alert('حدث خطأ في التعديل');
+      showMessage('حدث خطأ في التعديل', 'error');
     }
   };
 
   const handleDelete = async (item: ReferenceItem) => {
-    if (!confirm(`هل أنت متأكد من حذف "${item.name}"؟`)) {
-      return;
-    }
-
-    try {
-      const docRef = firestoreApi.getSubDocument(
-        'reference_data',
-        activeTab,
-        activeTab,
-        item.id
-      );
-
-      await firestoreApi.deleteData(docRef);
-
-      // Clear cache
-      ReferenceListsService.instance.clearListCache(activeTab);
-
-      await Promise.all([loadItemsCount(), loadItems()]);
-      alert('تم الحذف بنجاح');
-    } catch (error) {
-      console.error('Error deleting item:', error);
-      alert('حدث خطأ في الحذف');
-    }
+    showConfirm(
+      `هل أنت متأكد من حذف "${item.name}"؟`,
+      async () => {
+        try {
+          const docRef = firestoreApi.getSubDocument(
+            'reference_data',
+            activeTab,
+            activeTab,
+            item.id
+          );
+          await firestoreApi.deleteData(docRef);
+          ReferenceListsService.instance.clearListCache(activeTab);
+          await Promise.all([loadItemsCount(), loadItems()]);
+          showMessage('تم الحذف بنجاح', 'success');
+        } catch (error) {
+          console.error('Error deleting item:', error);
+          showMessage('حدث خطأ في الحذف', 'error');
+        }
+      },
+      undefined,
+      'حذف',
+      'إلغاء',
+      'danger'
+    );
   };
 
   const openEditModal = (item: ReferenceItem) => {
