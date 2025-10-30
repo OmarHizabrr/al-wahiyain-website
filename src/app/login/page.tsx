@@ -314,7 +314,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl disabled:cursor-not-allowed"
+              className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="flex items-center justify-center">
@@ -332,14 +332,14 @@ export default function LoginPage() {
             <div className="mt-6 space-y-3">
               <button
                 onClick={() => router.push('/home')}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                className="w-full btn-primary"
               >
                 🏠 الذهاب للوحة التحكم
               </button>
               <button
                 onClick={handleDownloadAppClick}
                 disabled={loadingApps || appVersions.length === 0}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 📱 تحميل التطبيق
               </button>
