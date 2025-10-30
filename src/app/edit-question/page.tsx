@@ -249,7 +249,7 @@ function EditQuestionPageContent() {
                 {isEditMode ? 'تعديل السؤال' : 'إضافة سؤال جديد'}
               </h1>
             </div>
-            <button onClick={() => router.back()} className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">← إلغاء</button>
+            <button onClick={() => router.back()} className="btn-secondary">← إلغاء</button>
           </div>
         </div>
       </header>
@@ -269,11 +269,11 @@ function EditQuestionPageContent() {
           {/* Question Type - Show only when adding new question */}
           {!isEditMode && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">نوع السؤال *</label>
+              <label className="label">نوع السؤال *</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900"
+                className="input"
               >
                 <option value="fill_blank">املأ الفراغ</option>
                 <option value="specific_answer">إجابة محددة</option>
@@ -288,30 +288,30 @@ function EditQuestionPageContent() {
 
           {/* Question Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">نص السؤال *</label>
-            <textarea value={question} onChange={(e) => setQuestion(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900 placeholder-gray-500 min-h-[100px]" placeholder="اكتب السؤال..." />
+            <label className="label">نص السؤال *</label>
+            <textarea value={question} onChange={(e) => setQuestion(e.target.value)} className="input min-h-[100px]" placeholder="اكتب السؤال..." />
           </div>
 
           {/* Points, Hadith Number, Page */}
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">النقاط *</label>
-              <input type="number" value={points} onChange={(e) => setPoints(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900" />
+              <label className="label">النقاط *</label>
+              <input type="number" value={points} onChange={(e) => setPoints(e.target.value)} className="input" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">رقم الحديث</label>
-              <input type="text" value={hadithNumber} onChange={(e) => setHadithNumber(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900" />
+              <label className="label">رقم الحديث</label>
+              <input type="text" value={hadithNumber} onChange={(e) => setHadithNumber(e.target.value)} className="input" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">الصفحة</label>
-              <input type="text" value={page} onChange={(e) => setPage(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900" />
+              <label className="label">الصفحة</label>
+              <input type="text" value={page} onChange={(e) => setPage(e.target.value)} className="input" />
             </div>
           </div>
 
           {/* Hint */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">تلميح (اختياري)</label>
-            <input type="text" value={hint} onChange={(e) => setHint(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900" placeholder="أدخل تلميح للمستخدم..." />
+            <label className="label">تلميح (اختياري)</label>
+            <input type="text" value={hint} onChange={(e) => setHint(e.target.value)} className="input" placeholder="أدخل تلميح للمستخدم..." />
           </div>
 
           {/* Render type-specific fields based on the question type - simplified for now */}
@@ -319,7 +319,7 @@ function EditQuestionPageContent() {
 
           {/* Save Button */}
           <div className="pt-6">
-            <button onClick={handleSave} disabled={isSaving} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl disabled:cursor-not-allowed">
+            <button onClick={handleSave} disabled={isSaving} className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
               {isSaving ? 'جاري الحفظ...' : isEditMode ? '💾 حفظ التعديلات' : '➕ إضافة السؤال'}
             </button>
           </div>
