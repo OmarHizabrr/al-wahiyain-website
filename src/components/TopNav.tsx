@@ -20,6 +20,7 @@ export default function TopNav() {
   const { user, logout } = useAuth();
   const [openMenu, setOpenMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const hideTabs = pathname === '/' || pathname === '/login';
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -49,21 +50,23 @@ export default function TopNav() {
           </div>
 
           {/* Center: Tabs */}
-          <nav className="hidden md:flex items-center gap-1">
-            {tabs.map((t) => (
-              <Link
-                key={t.href}
-                href={t.href}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive(t.href)
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                {t.label}
-              </Link>
-            ))}
-          </nav>
+          {!hideTabs && (
+            <nav className="hidden md:flex items-center gap-1">
+              {tabs.map((t) => (
+                <Link
+                  key={t.href}
+                  href={t.href}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive(t.href)
+                      ? 'bg-gray-900 text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {t.label}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           {/* Right: User */}
           <div className="flex items-center gap-3">
@@ -126,21 +129,23 @@ export default function TopNav() {
         </div>
 
         {/* Mobile tabs */}
-        <div className="md:hidden flex items-center gap-2 py-2 overflow-x-auto">
-          {tabs.map((t) => (
-            <Link
-              key={t.href}
-              href={t.href}
-              className={`whitespace-nowrap px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive(t.href)
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-700 bg-gray-50'
-              }`}
-            >
-              {t.label}
-            </Link>
-          ))}
-        </div>
+        {!hideTabs && (
+          <div className="md:hidden flex items-center gap-2 py-2 overflow-x-auto">
+            {tabs.map((t) => (
+              <Link
+                key={t.href}
+                href={t.href}
+                className={`whitespace-nowrap px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive(t.href)
+                    ? 'bg-gray-900 text-white'
+                    : 'text-gray-700 bg-gray-50'
+                }`}
+              >
+                {t.label}
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </header>
   );
