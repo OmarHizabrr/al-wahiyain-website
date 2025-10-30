@@ -600,25 +600,25 @@ export default function DashboardPage() {
             <div className="flex items-center space-x-4 space-x-reverse">
               <button
                 onClick={handlePrintDashboard}
-                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                className="btn-success"
               >
                 🖨️ طباعة التقرير
               </button>
               <button
                 onClick={() => router.push('/settings')}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                className="btn-secondary"
               >
                 ⚙️ الإعدادات
               </button>
               <button
                 onClick={loadAllStats}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                className="btn-primary"
               >
                 🔄 تحديث البيانات
               </button>
               <button
                 onClick={() => router.push('/home')}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                className="btn-secondary"
               >
                 🏠 العودة
               </button>
@@ -789,7 +789,7 @@ export default function DashboardPage() {
                             e.stopPropagation();
                             handlePrintGroup(group);
                           }}
-                          className="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                          className="btn-success p-2 !px-3 !py-2"
                           title="طباعة تقرير المجموعة"
                         >
                           🖨️

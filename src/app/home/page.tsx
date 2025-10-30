@@ -196,7 +196,7 @@ export default function HomePage() {
             </div>
             <button
               onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+              className="btn-danger"
             >
               تسجيل الخروج
             </button>
@@ -266,7 +266,7 @@ export default function HomePage() {
                    </p>
                    <button
                      onClick={() => router.push('/narrators')}
-                     className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                     className="btn-secondary"
                    >
                      إدارة الرواة
                    </button>
@@ -280,7 +280,7 @@ export default function HomePage() {
                    </p>
                    <button
                      onClick={() => router.push('/books')}
-                     className="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                     className="btn-secondary"
                    >
                      إدارة الكتب
                    </button>
@@ -294,7 +294,7 @@ export default function HomePage() {
                  </p>
                  <button
                    onClick={() => router.push('/attributions')}
-                   className="bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                   className="btn-secondary"
                  >
                    إدارة المخرجيين
                  </button>
@@ -311,7 +311,7 @@ export default function HomePage() {
                  </p>
                  <button
                    onClick={() => router.push('/reference-lists')}
-                   className="bg-white text-purple-600 hover:bg-purple-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                   className="btn-secondary"
                  >
                    🛠️ إدارة القوائم المرجعية
                  </button>
@@ -328,7 +328,7 @@ export default function HomePage() {
                  </p>
                  <button
                    onClick={() => router.push('/users')}
-                   className="bg-white text-indigo-600 hover:bg-indigo-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                   className="btn-secondary"
                  >
                    👥 إدارة المستخدمين
                  </button>
@@ -345,7 +345,7 @@ export default function HomePage() {
                  </p>
                  <button
                    onClick={() => router.push('/questions')}
-                   className="bg-white text-cyan-600 hover:bg-cyan-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                   className="btn-secondary"
                  >
                    ❓ إدارة الأسئلة
                  </button>
@@ -362,7 +362,7 @@ export default function HomePage() {
                  </p>
                  <button
                    onClick={() => router.push('/dashboard')}
-                   className="bg-white text-indigo-600 hover:bg-indigo-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                   className="btn-secondary"
                  >
                    📊 عرض لوحة التحكم
                  </button>
@@ -379,7 +379,7 @@ export default function HomePage() {
                  </p>
                 <button
                   onClick={() => router.push('/apps-management')}
-                  className="bg-white text-green-600 hover:bg-green-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                  className="btn-secondary"
                 >
                   📱 إدارة التطبيقات
                 </button>
@@ -396,7 +396,7 @@ export default function HomePage() {
                  </p>
                  <button
                    onClick={() => router.push('/settings')}
-                   className="bg-white text-violet-600 hover:bg-violet-50 font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                   className="btn-secondary"
                  >
                    ⚙️ فتح الإعدادات
                  </button>
@@ -418,7 +418,7 @@ export default function HomePage() {
               <button
                 onClick={fetchAppDownloads}
                 disabled={loadingDownloads}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <svg className={`w-5 h-5 ${loadingDownloads ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -429,7 +429,7 @@ export default function HomePage() {
                 <button
                   onClick={handleDeleteAll}
                   disabled={loadingDownloads}
-                  className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="btn-danger disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
