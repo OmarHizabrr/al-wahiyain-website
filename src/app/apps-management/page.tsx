@@ -1,6 +1,7 @@
 'use client';
 
 import { firestoreApi } from '@/lib/FirestoreApi';
+import { useAuth } from '@/contexts/AuthContext';
 import { useMessage } from '@/lib/messageService';
 import { DocumentSnapshot } from 'firebase/firestore';
 import Image from 'next/image';
@@ -24,6 +25,7 @@ interface AppVersion {
 export default function AppsManagementPage() {
   const { showMessage, showConfirm } = useMessage();
   const router = useRouter();
+  const { user } = useAuth();
   const [appVersions, setAppVersions] = useState<AppVersion[]>([]);
   const [loadingApps, setLoadingApps] = useState(true);
   const [showAddAppDialog, setShowAddAppDialog] = useState(false);
@@ -40,9 +42,15 @@ export default function AppsManagementPage() {
   });
 
   useEffect(() => {
+    // حماية الصفحة: السماح فقط للمستخدمين المسجلين
+    if (!user) {
+      showMessage('يرجى تسجيل الدخول للوصول إلى إدارة التطبيقات', 'warning');
+      router.push('/login');
+      return;
+    }
     fetchAppVersions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   const fetchAppVersions = async () => {
     try {
@@ -351,8 +359,8 @@ export default function AppsManagementPage() {
 
         {/* نافذة إضافة/تعديل تطبيق */}
         {showAddAppDialog && (
-          <div className="fixed inset-0 bg-black/10 backdrop-blur-[1px] flex items-center justify-center z-50 p-4 animate-fade-in">
-            <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
               <div className="p-6 border-b border-gray-200">
                 <h3 className="text-xl font-bold text-gray-900">
                   {editingApp ? 'تعديل التطبيق' : 'إضافة تطبيق جديد'}
@@ -360,75 +368,75 @@ export default function AppsManagementPage() {
               </div>
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-800 mb-2">
                     اسم التطبيق <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={appForm.name}
                     onChange={(e) => setAppForm({ ...appForm, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
                     placeholder="مثال: تطبيق الوحيين"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-800 mb-2">
                     رابط التحميل <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="url"
                     value={appForm.downloadUrl}
                     onChange={(e) => setAppForm({ ...appForm, downloadUrl: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
                     placeholder="https://drive.google.com/file/d/..."
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-800 mb-2">
                       الإصدار
                     </label>
                     <input
                       type="text"
                       value={appForm.version}
                       onChange={(e) => setAppForm({ ...appForm, version: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
                       placeholder="مثال: 1.0.0"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-800 mb-2">
                       الحجم
                     </label>
                     <input
                       type="text"
                       value={appForm.size}
                       onChange={(e) => setAppForm({ ...appForm, size: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
                       placeholder="مثال: 25 MB"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-800 mb-2">
                     رابط الأيقونة (اختياري)
                   </label>
                   <input
                     type="url"
                     value={appForm.icon}
                     onChange={(e) => setAppForm({ ...appForm, icon: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
                     placeholder="https://example.com/icon.png"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-800 mb-2">
                     الوصف (اختياري)
                   </label>
                   <textarea
                     value={appForm.description}
                     onChange={(e) => setAppForm({ ...appForm, description: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
                     rows={3}
                     placeholder="وصف مختصر للتطبيق..."
                   />
@@ -440,7 +448,7 @@ export default function AppsManagementPage() {
                     onChange={(e) => setAppForm({ ...appForm, isVisible: e.target.checked })}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-gray-800">
                     إظهار التطبيق في قائمة التحميل
                   </label>
                 </div>
@@ -451,7 +459,7 @@ export default function AppsManagementPage() {
                     setShowAddAppDialog(false);
                     setEditingApp(null);
                   }}
-                  className="px-6 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg font-medium transition-all duration-200"
+                  className="px-6 py-2 bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 rounded-lg font-medium transition-all duration-200"
                 >
                   إلغاء
                 </button>

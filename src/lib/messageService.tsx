@@ -174,11 +174,11 @@ export function MessageProvider({ children }: MessageProviderProps) {
 
       {/* Confirm Dialog */}
       {confirmDialog && (
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-[1px] flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-lg shadow-lg max-w-md w-full animate-scale-in">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full animate-scale-in">
             {/* Header with Icon */}
             <div className="flex justify-center pt-8 pb-4 border-b border-gray-100">
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center opacity-10 ${
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center opacity-15 ${
                 confirmDialog.type === 'danger' ? 'bg-red-500' :
                 confirmDialog.type === 'warning' ? 'bg-yellow-500' :
                 'bg-blue-500'
@@ -208,7 +208,7 @@ export function MessageProvider({ children }: MessageProviderProps) {
                  confirmDialog.type === 'warning' ? 'تأكيد الإجراء' :
                  'تأكيد'}
               </h2>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-700 mb-4">
                 {confirmDialog.message}
               </p>
               
