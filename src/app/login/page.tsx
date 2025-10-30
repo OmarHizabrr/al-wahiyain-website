@@ -245,7 +245,7 @@ export default function LoginPage() {
         </div>
 
         {/* Login Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
           <div className="card p-8 space-y-6">
             {/* Phone Number */}
             <div>
@@ -262,8 +262,8 @@ export default function LoginPage() {
                 placeholder="مثال: 967712345678"
                 className="input"
                 inputMode="numeric"
-                pattern="\\d*"
                 maxLength={15}
+                autoComplete="tel"
                 aria-label="رقم الهاتف اليمني"
               />
               <p className="mt-1 text-xs text-gray-500">مسموح بالأرقام فقط. الحد الأدنى 9 أرقام. يمكن بدون مفتاح الدولة.</p>
