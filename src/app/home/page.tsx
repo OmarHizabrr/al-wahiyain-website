@@ -294,89 +294,64 @@ export default function HomePage() {
                </div>
              </div>
 
-             {/* Reference Lists Management */}
-             <div className="mt-8">
-               <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-8 shadow-lg text-center text-white">
-                 <div className="text-5xl mb-4">⚙️</div>
-                 <h3 className="text-2xl font-bold mb-2">إدارة القوائم المرجعية</h3>
-                 <p className="text-purple-100 mb-6">
-                   أضف، عدّل، أو احذف الرواة والكتب والمخارج
-                 </p>
-                 <button
-                   onClick={() => router.push('/reference-lists')}
-                   className="btn-secondary"
-                 >
-                   🛠️ إدارة القوائم المرجعية
-                 </button>
-               </div>
-             </div>
+        {/* Reference Lists Management */}
+        <div className="mt-8">
+          <div className="card p-6 text-right">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xl font-bold text-gray-900">إدارة القوائم المرجعية</h3>
+              <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-2xl">⚙️</div>
+            </div>
+            <p className="text-gray-600 mb-4">أضف، عدّل، أو احذف الرواة والكتب والمخارج</p>
+            <button onClick={() => router.push('/reference-lists')} className="btn-secondary">🛠️ إدارة القوائم المرجعية</button>
+          </div>
+        </div>
 
              {/* Users Management */}
              <div className="mt-8">
-               <div className="bg-gradient-to-r from-indigo-500 to-blue-500 rounded-xl p-8 shadow-lg text-center text-white">
-                 <div className="text-5xl mb-4">👥</div>
-                 <h3 className="text-2xl font-bold mb-2">إدارة المستخدمين</h3>
-                 <p className="text-indigo-100 mb-6">
-                   عرض جميع المستخدمين وإدارتهم
-                 </p>
-                 <button
-                   onClick={() => router.push('/users')}
-                   className="btn-secondary"
-                 >
-                   👥 إدارة المستخدمين
-                 </button>
-               </div>
+            <div className="card p-6 text-right">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xl font-bold text-gray-900">إدارة المستخدمين</h3>
+                <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-2xl">👥</div>
+              </div>
+              <p className="text-gray-600 mb-4">عرض جميع المستخدمين وإدارتهم</p>
+              <button onClick={() => router.push('/users')} className="btn-secondary">👥 إدارة المستخدمين</button>
+            </div>
              </div>
 
              {/* Questions Management */}
              <div className="mt-8">
-               <div className="bg-gradient-to-r from-cyan-500 to-teal-500 rounded-xl p-8 shadow-lg text-center text-white">
-                 <div className="text-5xl mb-4">❓</div>
-                 <h3 className="text-2xl font-bold mb-2">إدارة الأسئلة</h3>
-                 <p className="text-cyan-100 mb-6">
-                   إضافة وتعديل وحذف الأسئلة
-                 </p>
-                 <button
-                   onClick={() => router.push('/questions')}
-                   className="btn-secondary"
-                 >
-                   ❓ إدارة الأسئلة
-                 </button>
-               </div>
+            <div className="card p-6 text-right">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xl font-bold text-gray-900">إدارة الأسئلة</h3>
+                <div className="w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center text-2xl">❓</div>
+              </div>
+              <p className="text-gray-600 mb-4">إضافة وتعديل وحذف الأسئلة</p>
+              <button onClick={() => router.push('/questions')} className="btn-secondary">❓ إدارة الأسئلة</button>
+            </div>
              </div>
 
              {/* Dashboard */}
              <div className="mt-8">
-               <div className="bg-gradient-to-r from-indigo-500 via-blue-600 to-slate-700 rounded-xl p-8 shadow-lg text-center text-white">
-                 <div className="text-5xl mb-4">📊</div>
-                 <h3 className="text-2xl font-bold mb-2">لوحة التحكم</h3>
-                 <p className="text-blue-100 mb-6">
-                   عرض إحصائيات النظام والبيانات الشاملة
-                 </p>
-                 <button
-                   onClick={() => router.push('/dashboard')}
-                   className="btn-secondary"
-                 >
-                   📊 عرض لوحة التحكم
-                 </button>
-               </div>
+            <div className="card p-6 text-right">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xl font-bold text-gray-900">لوحة التحكم</h3>
+                <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-2xl">📊</div>
+              </div>
+              <p className="text-gray-600 mb-4">عرض إحصائيات النظام والبيانات الشاملة</p>
+              <button onClick={() => router.push('/dashboard')} className="btn-secondary">📊 عرض لوحة التحكم</button>
+            </div>
              </div>
 
              {/* App Management */}
              <div className="mt-8">
-               <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl p-8 shadow-lg text-center text-white">
-                 <div className="text-5xl mb-4">📱</div>
-                 <h3 className="text-2xl font-bold mb-2">إدارة التطبيقات</h3>
-                 <p className="text-green-100 mb-6">
-                   إضافة وتعديل تطبيقات التحميل المتعددة
-                 </p>
-                <button
-                  onClick={() => router.push('/apps-management')}
-                  className="btn-secondary"
-                >
-                  📱 إدارة التطبيقات
-                </button>
-               </div>
+            <div className="card p-6 text-right">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xl font-bold text-gray-900">إدارة التطبيقات</h3>
+                <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-2xl">📱</div>
+              </div>
+              <p className="text-gray-600 mb-4">إضافة وتعديل تطبيقات التحميل المتعددة</p>
+              <button onClick={() => router.push('/apps-management')} className="btn-secondary">📱 إدارة التطبيقات</button>
+            </div>
              </div>
 
              {/* Settings */}
