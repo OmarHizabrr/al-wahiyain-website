@@ -775,14 +775,14 @@ export default function HomePage() {
                        🔐 تسجيل الدخول
                      </button>
                    )}
-                   {user && (
-                     <button
-                       onClick={() => setShowUploadDialog(true)}
-                       className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-                     >
-                       🔗 إدارة التطبيق
-                     </button>
-                   )}
+                  {user && (
+                    <button
+                      onClick={() => router.push('/apps-management')}
+                      className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                    >
+                      📱 إدارة التطبيقات
+                    </button>
+                  )}
                  </div>
         </div>
 
