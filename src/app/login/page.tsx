@@ -83,6 +83,13 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // تحقق الحد الأدنى لطول رقم الهاتف (9 أرقام على الأقل)
+      const digitsOnly = (credentials.phoneNumber || '').replace(/\D/g, '');
+      if (digitsOnly.length < 9) {
+        setLoading(false);
+        setError('رقم الهاتف يجب أن يكون 9 أرقام على الأقل');
+        return;
+      }
       await login(credentials);
       // بعد تسجيل الدخول، نجلب التطبيقات
       const apps = await fetchAppVersions();
@@ -256,10 +263,11 @@ export default function LoginPage() {
                 className="input"
                 inputMode="numeric"
                 pattern="\\d*"
-                maxLength={12}
+                minLength={9}
+                maxLength={15}
                 aria-label="رقم الهاتف اليمني"
               />
-              <p className="mt-1 text-xs text-gray-500">مسموح بالأرقام فقط. يُفضّل التنسيق الدولي: 9677XXXXXXXX</p>
+              <p className="mt-1 text-xs text-gray-500">مسموح بالأرقام فقط. الحد الأدنى 9 أرقام. يمكن بدون مفتاح الدولة.</p>
             </div>
 
             {/* Password */}
