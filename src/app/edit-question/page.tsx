@@ -4,12 +4,14 @@ import { firestoreApi } from '@/lib/FirestoreApi';
 import { ReferenceListsService } from '@/lib/referenceListsService';
 import { TestTemplates } from '@/lib/testTemplates';
 import Image from 'next/image';
+import { useMessage } from '@/lib/messageService';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 
 function EditQuestionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { showMessage } = useMessage();
   
   const questionId = searchParams.get('questionId');
   const templateId = searchParams.get('templateId');
@@ -128,17 +130,17 @@ function EditQuestionPageContent() {
 
   const handleSave = async () => {
     if (!question.trim()) {
-      alert('يرجى إدخال نص السؤال');
+      showMessage('يرجى إدخال نص السؤال', 'warning');
       return;
     }
 
     if (type === 'multiple_choice' && !correctOption) {
-      alert('يرجى اختيار الإجابة الصحيحة');
+      showMessage('يرجى اختيار الإجابة الصحيحة', 'warning');
       return;
     }
 
     if (!templateId) {
-      alert('يرجى اختيار المجلد');
+      showMessage('يرجى اختيار المجلد', 'warning');
       return;
     }
 
@@ -193,20 +195,20 @@ function EditQuestionPageContent() {
         // تعديل سؤال موجود
         const questionDocRef = firestoreApi.getSubDocument('questions', templateId!, 'questions', questionId);
         await firestoreApi.updateData(questionDocRef, data);
-        alert('تم تحديث السؤال بنجاح');
+        showMessage('تم تحديث السؤال بنجاح', 'success');
       } else {
         // إضافة سؤال جديد
         const newId = firestoreApi.getNewId('questions');
         const questionDocRef = firestoreApi.getSubDocument('questions', templateId!, 'questions', newId);
         const finalData = { ...data, id: newId };
         await firestoreApi.setData(questionDocRef, finalData);
-        alert('تم إضافة السؤال بنجاح');
+        showMessage('تم إضافة السؤال بنجاح', 'success');
       }
       
       router.back();
     } catch (error) {
       console.error('Error saving question:', error);
-      alert('حدث خطأ في حفظ السؤال');
+      showMessage('حدث خطأ في حفظ السؤال', 'error');
     } finally {
       setIsSaving(false);
     }
