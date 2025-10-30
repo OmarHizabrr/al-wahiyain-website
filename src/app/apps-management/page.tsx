@@ -1,7 +1,7 @@
 'use client';
 
-import { firestoreApi } from '@/lib/FirestoreApi';
 import { useAuth } from '@/contexts/AuthContext';
+import { firestoreApi } from '@/lib/FirestoreApi';
 import { useMessage } from '@/lib/messageService';
 import { DocumentSnapshot } from 'firebase/firestore';
 import Image from 'next/image';
