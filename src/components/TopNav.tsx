@@ -1,9 +1,10 @@
 'use client';
 
+import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useRef, useState } from 'react';
 
 const tabs = [
   { href: '/', label: 'الرئيسية' },
@@ -17,6 +18,18 @@ export default function TopNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const [openMenu, setOpenMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
@@ -61,15 +74,50 @@ export default function TopNav() {
               تحميل التطبيق
             </button>
             {user ? (
-              <div className="flex items-center gap-3">
-                {user.photoURL ? (
-                  <Image src={user.photoURL} alt={user.displayName} width={28} height={28} className="rounded-full border" />
-                ) : (
-                  <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700">
-                    {user.displayName?.charAt(0) || 'م'}
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={() => setOpenMenu((v) => !v)}
+                  className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-100"
+                  aria-haspopup="menu"
+                  aria-expanded={openMenu}
+                >
+                  {user.photoURL ? (
+                    <Image src={user.photoURL} alt={user.displayName} width={28} height={28} className="rounded-full border" />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700">
+                      {user.displayName?.charAt(0) || 'م'}
+                    </div>
+                  )}
+                  <span className="hidden sm:inline text-sm font-semibold text-gray-900">{user.displayName}</span>
+                  <svg className={`w-4 h-4 text-gray-500 transition-transform ${openMenu ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z"/></svg>
+                </button>
+                {openMenu && (
+                  <div className="absolute left-0 rtl:left-auto rtl:right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg p-2 z-50">
+                    <div className="px-3 py-2 border-b border-gray-100">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{user.displayName}</p>
+                      {user.email && <p className="text-xs text-gray-500 truncate">{user.email}</p>}
+                    </div>
+                    <button
+                      onClick={() => { setOpenMenu(false); router.push('/home'); }}
+                      className="w-full text-right px-3 py-2 rounded-lg text-sm hover:bg-gray-50 text-gray-700"
+                    >
+                      ملفي الشخصي
+                    </button>
+                    <button
+                      onClick={() => { setOpenMenu(false); router.push('/settings'); }}
+                      className="w-full text-right px-3 py-2 rounded-lg text-sm hover:bg-gray-50 text-gray-700"
+                    >
+                      الإعدادات
+                    </button>
+                    <div className="h-px bg-gray-100 my-1" />
+                    <button
+                      onClick={() => { setOpenMenu(false); logout(); }}
+                      className="w-full text-right px-3 py-2 rounded-lg text-sm hover:bg-red-50 text-red-600"
+                    >
+                      تسجيل الخروج
+                    </button>
                   </div>
                 )}
-                <button onClick={logout} className="btn-ghost px-3 py-2">خروج</button>
               </div>
             ) : (
               <button onClick={() => router.push('/login')} className="btn-success px-3 py-2">تسجيل الدخول</button>
