@@ -746,23 +746,23 @@ export default function HomePage() {
           </p>
 
                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                   <button
-                     onClick={downloadApp}
-                     className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-                   >
+                  <button
+                    onClick={downloadApp}
+                    className="btn-primary text-lg transform hover:scale-105"
+                  >
                      📱 تحميل التطبيق
                    </button>
                    {user ? (
                      <>
                        <button
                          onClick={() => router.push('/home')}
-                         className="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                        className="btn-primary text-lg transform hover:scale-105"
                        >
                          🏠 الذهاب للوحة التحكم
                        </button>
                        <button
                          onClick={() => router.push('/dashboard')}
-                         className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                        className="btn-secondary text-lg transform hover:scale-105"
                        >
                          📊 عرض الإحصائيات
                        </button>
@@ -770,7 +770,7 @@ export default function HomePage() {
                    ) : (
                      <button
                        onClick={() => router.push('/login')}
-                       className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                      className="btn-success text-lg transform hover:scale-105"
                      >
                        🔐 تسجيل الدخول
                      </button>
@@ -778,7 +778,7 @@ export default function HomePage() {
                   {user && (
                     <button
                       onClick={() => router.push('/apps-management')}
-                      className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                      className="btn-secondary text-lg transform hover:scale-105"
                     >
                       📱 إدارة التطبيقات
                     </button>

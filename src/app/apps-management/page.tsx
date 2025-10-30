@@ -221,7 +221,7 @@ export default function AppsManagementPage() {
         <div className="mb-6 flex justify-end">
           <button
             onClick={handleAddApp}
-            className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all flex items-center gap-2"
+            className="btn-success flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -369,75 +369,75 @@ export default function AppsManagementPage() {
               </div>
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-2">
+                  <label className="label">
                     اسم التطبيق <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={appForm.name}
                     onChange={(e) => setAppForm({ ...appForm, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
+                    className="input"
                     placeholder="مثال: تطبيق الوحيين"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-2">
+                  <label className="label">
                     رابط التحميل <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="url"
                     value={appForm.downloadUrl}
                     onChange={(e) => setAppForm({ ...appForm, downloadUrl: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
+                    className="input"
                     placeholder="https://drive.google.com/file/d/..."
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-2">
+                    <label className="label">
                       الإصدار
                     </label>
                     <input
                       type="text"
                       value={appForm.version}
                       onChange={(e) => setAppForm({ ...appForm, version: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
+                      className="input"
                       placeholder="مثال: 1.0.0"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-2">
+                    <label className="label">
                       الحجم
                     </label>
                     <input
                       type="text"
                       value={appForm.size}
                       onChange={(e) => setAppForm({ ...appForm, size: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
+                      className="input"
                       placeholder="مثال: 25 MB"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-2">
+                  <label className="label">
                     رابط الأيقونة (اختياري)
                   </label>
                   <input
                     type="url"
                     value={appForm.icon}
                     onChange={(e) => setAppForm({ ...appForm, icon: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
+                    className="input"
                     placeholder="https://example.com/icon.png"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-800 mb-2">
+                  <label className="label">
                     الوصف (اختياري)
                   </label>
                   <textarea
                     value={appForm.description}
                     onChange={(e) => setAppForm({ ...appForm, description: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 placeholder:text-gray-400"
+                    className="input"
                     rows={3}
                     placeholder="وصف مختصر للتطبيق..."
                   />
@@ -460,14 +460,14 @@ export default function AppsManagementPage() {
                     setShowAddAppDialog(false);
                     setEditingApp(null);
                   }}
-                  className="px-6 py-2 bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 rounded-lg font-medium transition-all duration-200"
+                  className="btn-ghost"
                 >
                   إلغاء
                 </button>
                 <button
                   onClick={handleSaveApp}
                   disabled={isSaving}
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary"
                 >
                   {isSaving ? 'جاري الحفظ...' : editingApp ? 'تحديث' : 'إضافة'}
                 </button>
