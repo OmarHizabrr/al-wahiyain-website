@@ -168,13 +168,13 @@ export default function UsersManagementPage() {
             <div className="flex items-center space-x-4 space-x-reverse">
               <button
                 onClick={loadUsers}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                className="btn-primary"
               >
                 🔄 تحديث
               </button>
               <button
                 onClick={() => router.push('/home')}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+                className="btn-secondary"
               >
                 🏠 العودة
               </button>
@@ -231,7 +231,7 @@ export default function UsersManagementPage() {
               placeholder="ابحث عن المستخدمين..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900"
+              className="input pr-12"
             />
             {searchQuery && (
               <button
@@ -341,7 +341,7 @@ export default function UsersManagementPage() {
                           e.stopPropagation();
                           router.push(`/users/${user.id}`);
                         }}
-                        className="p-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                        className="btn-secondary p-3 !px-3 !py-3"
                         title="عرض التفاصيل"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,7 +354,7 @@ export default function UsersManagementPage() {
                           e.stopPropagation();
                           handleEdit(user);
                         }}
-                        className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                        className="btn-primary p-3 !px-3 !py-3"
                         title="تعديل"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,7 +366,7 @@ export default function UsersManagementPage() {
                           e.stopPropagation();
                           handleDelete(user.id, user.displayName);
                         }}
-                        className="p-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                        className="btn-danger p-3 !px-3 !py-3"
                         title="حذف"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -390,43 +390,43 @@ export default function UsersManagementPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="label">
                   الاسم الكامل *
                 </label>
                 <input
                   type="text"
                   value={editForm.displayName}
                   onChange={(e) => setEditForm({ ...editForm, displayName: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  className="input"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="label">
                   البريد الإلكتروني *
                 </label>
                 <input
                   type="email"
                   value={editForm.email}
                   onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  className="input"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="label">
                   رقم الهاتف (اختياري)
                 </label>
                 <input
                   type="tel"
                   value={editForm.phoneNumber}
                   onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  className="input"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="label">
                   كلمة المرور (اتركه فارغاً إذا لم تريد التغيير)
                 </label>
                 <input
@@ -434,19 +434,19 @@ export default function UsersManagementPage() {
                   value={editForm.password}
                   onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
                   placeholder="أدخل كلمة مرور جديدة..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  className="input"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="label">
                     الدور
                   </label>
                   <select
                     value={editForm.role}
                     onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                    className="input"
                   >
                     <option value="student">طالب</option>
                     <option value="teacher">معلم</option>
@@ -455,13 +455,13 @@ export default function UsersManagementPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="label">
                     الحالة
                   </label>
                   <select
                     value={editForm.isActive ? 'active' : 'inactive'}
                     onChange={(e) => setEditForm({ ...editForm, isActive: e.target.value === 'active' })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                    className="input"
                   >
                     <option value="active">نشط</option>
                     <option value="inactive">غير نشط</option>
@@ -476,13 +476,13 @@ export default function UsersManagementPage() {
                   setEditModalOpen(false);
                   setEditingUser(null);
                 }}
-                className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                className="btn-ghost flex-1"
               >
                 إلغاء
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                className="btn-primary flex-1"
               >
                 حفظ
               </button>
