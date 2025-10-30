@@ -215,7 +215,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -236,10 +236,10 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="bg-white rounded-xl shadow-lg p-8 space-y-6">
+          <div className="card p-8 space-y-6">
             {/* Phone Number */}
             <div>
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="phoneNumber" className="label">
                 رقم الهاتف
               </label>
               <input
@@ -249,14 +249,14 @@ export default function LoginPage() {
                 required
                 value={credentials.phoneNumber}
                 onChange={handleInputChange}
-                placeholder="مثال: 966501234567"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900 placeholder-gray-500"
+                placeholder="مثال: 967712345678"
+                className="input"
               />
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="label">
                 كلمة المرور
               </label>
               <div className="relative">
@@ -268,7 +268,7 @@ export default function LoginPage() {
                   value={credentials.password}
                   onChange={handleInputChange}
                   placeholder="أدخل كلمة المرور"
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 text-gray-900 placeholder-gray-500"
+                  className="input pr-12"
                 />
                 <button
                   type="button"

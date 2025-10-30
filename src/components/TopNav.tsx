@@ -20,7 +20,8 @@ export default function TopNav() {
   const { user, logout } = useAuth();
   const [openMenu, setOpenMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const hideTabs = pathname === '/' || pathname === '/login';
+  const normalizedPath = (pathname || '/').replace(/\/+$/, '') || '/';
+  const hideTabs = normalizedPath === '/' || normalizedPath === '/login';
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
