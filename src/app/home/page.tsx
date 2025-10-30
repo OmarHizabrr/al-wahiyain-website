@@ -194,12 +194,35 @@ export default function HomePage() {
                 منصة إختبارات الوحيين
               </h1>
             </div>
-            <button
-              onClick={handleLogout}
-              className="btn-danger"
-            >
-              تسجيل الخروج
-            </button>
+            <div className="flex items-center gap-4">
+              {/* Compact user profile in header */}
+              <div className="hidden sm:flex items-center gap-3">
+                {user.photoURL ? (
+                  <Image
+                    src={user.photoURL}
+                    alt={user.displayName}
+                    width={36}
+                    height={36}
+                    className="rounded-full border"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-700">
+                    {user.displayName.charAt(0)}
+                  </div>
+                )}
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-gray-900 leading-4">{user.displayName}</div>
+                  {user.email && <div className="text-xs text-gray-500">{user.email}</div>}
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="btn-ghost"
+                title="تسجيل الخروج"
+              >
+                تسجيل الخروج
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -207,51 +230,21 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              مرحباً بك، {user.displayName}!
-            </h2>
-            <p className="text-lg text-gray-600 mb-6">
-              أهلاً وسهلاً بك في منصة إختبارات الوحيين
-            </p>
-            
-            {/* User Profile Card */}
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white max-w-md mx-auto">
-              <div className="flex items-center justify-center mb-4">
-                {user.photoURL ? (
-                  <Image
-                    src={user.photoURL}
-                    alt={user.displayName}
-                    width={80}
-                    height={80}
-                    className="rounded-full border-4 border-white"
-                  />
-                ) : (
-                  <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                    <span className="text-2xl font-bold">
-                      {user.displayName.charAt(0)}
-                    </span>
-                  </div>
-                )}
-              </div>
-              
-              <h3 className="text-xl font-bold mb-2">{user.displayName}</h3>
-              <p className="text-blue-100 mb-1">{user.phoneNumber}</p>
-              {user.email && (
-                <p className="text-blue-100 mb-1">{user.email}</p>
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">مرحباً بك، {user.displayName}!</h2>
+              <p className="text-gray-600">أهلاً وسهلاً بك في منصة إختبارات الوحيين</p>
+            </div>
+            {/* Secondary compact avatar on small screens */}
+            <div className="sm:hidden">
+              {user.photoURL ? (
+                <Image src={user.photoURL} alt={user.displayName} width={40} height={40} className="rounded-full border" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-700">
+                  {user.displayName.charAt(0)}
+                </div>
               )}
-              <div className="mt-4">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  user.role === 'admin' ? 'bg-red-500' :
-                  user.role === 'teacher' ? 'bg-green-500' :
-                  'bg-blue-500'
-                }`}>
-                  {user.role === 'admin' ? 'مدير' :
-                   user.role === 'teacher' ? 'معلم' :
-                   'طالب'}
-                </span>
-              </div>
             </div>
           </div>
         </div>
