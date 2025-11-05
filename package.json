@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "deploy": "vercel --prod"
+    "deploy": "vercel --prod --yes"
   },
   "dependencies": {
     "firebase": "^12.4.0",

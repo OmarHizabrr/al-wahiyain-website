@@ -1,9 +1,9 @@
 'use client';
 
 import { firestoreApi } from '@/lib/FirestoreApi';
+import { useMessage } from '@/lib/messageService';
 import { ReferenceListsService } from '@/lib/referenceListsService';
 import Image from 'next/image';
-import { useMessage } from '@/lib/messageService';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -11,6 +11,10 @@ interface ReferenceItem {
   id: string;
   name: string;
   createdAt?: string;
+  updatedAt?: any; // Firestore Timestamp
+  createdByName?: string;
+  createdByImageUrl?: string;
+  createdBy?: string;
 }
 
 type ListType = 'narrators' | 'books' | 'attributions';
@@ -100,6 +104,10 @@ export default function ReferenceListsManagementPage() {
             id: doc.id,
             name: (data['name'] as string) || '',
             createdAt: data['createdAt'] as string | undefined,
+            updatedAt: data['updatedAt'],
+            createdByName: data['createdByName'] as string | undefined,
+            createdByImageUrl: data['createdByImageUrl'] as string | undefined,
+            createdBy: data['createdBy'] as string | undefined,
           };
         })
         .filter((item) => item.name !== '');
@@ -257,6 +265,47 @@ export default function ReferenceListsManagementPage() {
 
   const collectionInfo = getCollectionNames();
 
+  // دالة لتحويل التاريخ إلى هجري وإنجليزي مع الوقت
+  const formatDate = (timestamp: any) => {
+    if (!timestamp) return null;
+    
+    let date: Date;
+    if (timestamp?.toDate) {
+      // Firestore Timestamp
+      date = timestamp.toDate();
+    } else if (timestamp instanceof Date) {
+      date = timestamp;
+    } else if (typeof timestamp === 'string') {
+      date = new Date(timestamp);
+    } else {
+      return null;
+    }
+
+    // التاريخ الهجري
+    const hijriDate = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    }).format(date);
+
+    // التاريخ الميلادي بالإنجليزي مع الوقت التفصيلي
+    const gregorianDate = new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    }).format(date);
+
+    return { hijri: hijriDate, gregorian: gregorianDate };
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
@@ -364,44 +413,71 @@ export default function ReferenceListsManagementPage() {
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {filteredItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-6 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 space-x-reverse">
-                      <div className={`p-3 rounded-full bg-${collectionInfo.color}-100`}>
-                        <span className="text-2xl">{collectionInfo.icon}</span>
+              {filteredItems.map((item) => {
+                const dateInfo = formatDate(item.updatedAt || item.createdAt);
+                return (
+                  <div
+                    key={item.id}
+                    className="p-6 hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4 space-x-reverse flex-1">
+                        <div className={`p-3 rounded-full bg-${collectionInfo.color}-100`}>
+                          <span className="text-2xl">{collectionInfo.icon}</span>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {item.name}
+                            </h3>
+                            {item.createdByName && (
+                              <div className="flex items-center gap-2 text-xs text-gray-500">
+                                {item.createdByImageUrl && (
+                                  <Image
+                                    src={item.createdByImageUrl}
+                                    alt={item.createdByName}
+                                    width={20}
+                                    height={20}
+                                    className="rounded-full"
+                                  />
+                                )}
+                                <span>منشئ: {item.createdByName}</span>
+                                {item.createdBy && (
+                                  <span className="text-gray-400">({item.createdBy})</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          {dateInfo && (
+                            <div className="space-y-1 text-sm text-gray-600">
+                              <p>
+                                <span className="font-semibold">هجري:</span> {dateInfo.hijri}
+                              </p>
+                              <p>
+                                <span className="font-semibold">Gregorian:</span> {dateInfo.gregorian}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {item.name}
-                        </h3>
-                        {item.createdAt && (
-                          <p className="text-sm text-gray-500">
-                            تم الإنشاء: {new Date(item.createdAt).toLocaleDateString('ar-SA')}
-                          </p>
-                        )}
+                      <div className="flex items-center space-x-2 space-x-reverse">
+                        <button
+                          onClick={() => openEditModal(item)}
+                          className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors duration-200"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item)}
+                          className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200"
+                        >
+                          🗑️
+                        </button>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-2 space-x-reverse">
-                      <button
-                        onClick={() => openEditModal(item)}
-                        className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors duration-200"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item)}
-                        className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200"
-                      >
-                        🗑️
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

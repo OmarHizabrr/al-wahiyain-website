@@ -982,6 +982,14 @@ export default function DashboardPage() {
                                                 آخر محاولة: {new Date(test.lastAttemptDate).toLocaleDateString('ar-SA')}
                                               </p>
                                             )}
+                                            <div className="mt-3">
+                                              <a
+                                                href={`/dashboard/attempts/${group.id}/${student.id}/${test.testId}`}
+                                                className="inline-block text-xs px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                                              >
+                                                عرض تفاصيل المحاولة
+                                              </a>
+                                            </div>
                                           </div>
                                         ))}
                                       </div>
