@@ -5,13 +5,14 @@ import { useMessage } from '@/lib/messageService';
 import { ReferenceListsService } from '@/lib/referenceListsService';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import type { Timestamp } from 'firebase/firestore';
 
 interface ReferenceItem {
   id: string;
   name: string;
   createdAt?: string;
-  updatedAt?: any; // Firestore Timestamp
+  updatedAt?: Timestamp | Date | string;
   createdByName?: string;
   createdByImageUrl?: string;
   createdBy?: string;
@@ -47,7 +48,7 @@ export default function ReferenceListsManagementPage() {
     }
   };
 
-  const loadItemsCount = async () => {
+  const loadItemsCount = useCallback(async () => {
     try {
       const counts: Record<ListType, number> = {
         narrators: 0,
@@ -84,9 +85,9 @@ export default function ReferenceListsManagementPage() {
     } catch (error) {
       console.error('Error loading items count:', error);
     }
-  };
+  }, []);
 
-  const loadItems = async () => {
+  const loadItems = useCallback(async () => {
     setIsLoading(true);
     try {
       const collectionRef = firestoreApi.getSubCollectionRef(
@@ -104,7 +105,7 @@ export default function ReferenceListsManagementPage() {
             id: doc.id,
             name: (data['name'] as string) || '',
             createdAt: data['createdAt'] as string | undefined,
-            updatedAt: data['updatedAt'],
+            updatedAt: data['updatedAt'] as Timestamp | Date | string | undefined,
             createdByName: data['createdByName'] as string | undefined,
             createdByImageUrl: data['createdByImageUrl'] as string | undefined,
             createdBy: data['createdBy'] as string | undefined,
@@ -122,7 +123,7 @@ export default function ReferenceListsManagementPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [activeTab, showMessage]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -130,7 +131,7 @@ export default function ReferenceListsManagementPage() {
       loadItems();
     };
     loadData();
-  }, [activeTab]);
+  }, [loadItems, loadItemsCount]);
 
   const checkDuplicate = async (name: string, excludeId?: string): Promise<boolean> => {
     const normalizedName = name.trim().toLowerCase();
@@ -266,13 +267,13 @@ export default function ReferenceListsManagementPage() {
   const collectionInfo = getCollectionNames();
 
   // دالة لتحويل التاريخ إلى هجري وإنجليزي مع الوقت
-  const formatDate = (timestamp: any) => {
+  const formatDate = (timestamp: Timestamp | Date | string | undefined | null) => {
     if (!timestamp) return null;
     
     let date: Date;
-    if (timestamp?.toDate) {
+    if (typeof timestamp === 'object' && 'toDate' in timestamp && typeof timestamp.toDate === 'function') {
       // Firestore Timestamp
-      date = timestamp.toDate();
+      date = (timestamp as Timestamp).toDate();
     } else if (timestamp instanceof Date) {
       date = timestamp;
     } else if (typeof timestamp === 'string') {
