@@ -3,10 +3,10 @@
 import { firestoreApi } from '@/lib/FirestoreApi';
 import { useMessage } from '@/lib/messageService';
 import { ReferenceListsService } from '@/lib/referenceListsService';
+import type { Timestamp } from 'firebase/firestore';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
-import type { Timestamp } from 'firebase/firestore';
+import { useCallback, useEffect, useState } from 'react';
 
 interface ReferenceItem {
   id: string;
@@ -101,7 +101,7 @@ export default function ReferenceListsManagementPage() {
       const loadedItems = docs
         .map((doc) => {
           const data = doc.data() as Record<string, unknown>;
-          return {
+          const item = {
             id: doc.id,
             name: (data['name'] as string) || '',
             createdAt: data['createdAt'] as string | undefined,
@@ -110,11 +110,29 @@ export default function ReferenceListsManagementPage() {
             createdByImageUrl: data['createdByImageUrl'] as string | undefined,
             createdBy: data['createdBy'] as string | undefined,
           };
+          
+          // عرض البيانات في الكونسول مع أسماء الحقول
+          console.log('=== بيانات العنصر ===');
+          console.log('id:', item.id);
+          console.log('name:', item.name);
+          console.log('createdAt:', item.createdAt);
+          console.log('updatedAt:', item.updatedAt);
+          console.log('createdByName:', item.createdByName);
+          console.log('createdByImageUrl:', item.createdByImageUrl);
+          console.log('createdBy:', item.createdBy);
+          console.log('==================');
+          
+          return item;
         })
         .filter((item) => item.name !== '');
 
       // Sort alphabetically
       loadedItems.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+      // عرض ملخص البيانات في الكونسول
+      console.log(`\n📊 ملخص بيانات ${activeTab}:`);
+      console.log('عدد العناصر:', loadedItems.length);
+      console.log('العناصر:', loadedItems);
 
       setItems(loadedItems);
     } catch (error) {
